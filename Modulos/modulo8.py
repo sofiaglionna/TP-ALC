@@ -79,9 +79,11 @@ def svd_reducida(A, k="max", tol=1e-15):
 
         for i in range(D.shape[0] - 1, -1, -1):  # Lo hacemos de atras para adelante para que no se desincronize las filas y columnas cuando las eliminamos.
             if abs(D[i, i]) < tol:
-                D = np.delete(D, i, axis=0)  # np.delete() devuelve una nueva matriz, osea que no modifica la original. Por eso el D = np.delete().
-                D = np.delete(D, i, axis=1)  # axis = 0 aplica a la fila  ;  axis = 1 aplica a la columna.
-                hatV = np.delete(hatV, i, axis=1)
+                #D = np.delete(D, i, axis=0)  # np.delete() devuelve una nueva matriz, osea que no modifica la original. Por eso el D = np.delete().
+                #D = np.delete(D, i, axis=1)  # axis = 0 aplica a la fila  ;  axis = 1 aplica a la columna.
+                #hatV = np.delete(hatV, i, axis=1)
+
+                # Crear una lista vacia que guarde los autovalores que cumple con la tolerancia y luego con np.diag() crear la matriz con los autovalores guardados en la lista
 
         autovalores = np.diag(D) # Matriz con los autovalores (ya filtrados por la tolerancia) en su diagonal.
         valores_singulares = []
