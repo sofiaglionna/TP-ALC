@@ -2,7 +2,7 @@ import numpy as np
 
 #Funciones Auxiliares
 
-def diagRH(A,tol=1e-15,K=1000):
+def diagRH(A,tol=1e-15,K=1000):  ############################ FALTA MODIFICAR diagRH EN DONDE SE "@" POR LA FUNCION "multiplicacion_De_matrices_sin_numpy" ############################
     if esSimetrica(A) == False:
         return None
         
@@ -56,6 +56,12 @@ def multiplicacion_de_matrices_sin_numpy(A,B):
 
     else:
         raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
+
+
+
+
+
+
 
 
 # Funcion del ejercicio
