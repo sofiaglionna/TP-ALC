@@ -74,6 +74,8 @@ def QRconGS (A,tol=1e-12, retornanops=False):
     R = np.zeros((len(ColumnasA),len(ColumnasA)))
     for j in range(0,len(ColumnasA)):
         a=ColumnasA[j]
+        #len(a) multiplicaciones, len(a)-1 sumas y una raiz cuadrada
+        N_ops += 2*len(a)
         rjj = norma2(a)
         #paso a a vector
         a = np.array(a)
@@ -83,11 +85,15 @@ def QRconGS (A,tol=1e-12, retornanops=False):
             Q[0:len(ColumnasA), j] = 0.0
         else:
             R[j, j] = rjj
+            #len(a) divisiones 
             qj = a / rjj
+            N_ops += len(a)
             Q[0:len(ColumnasA), j] = qj
         for i in range(j+1,len(ColumnasA)):
+            # len(qj) multiplicaciones y sumas -> 2*len(qj) operaciones
             rji = multiplicacionMatricial(qj,np.array(ColumnasA[i]))
             R[j,i] = rji
+            # len(qj) multiplicaciones y restas -> 2*len(qj) operaciones
             ColumnasA[i] = ColumnasA[i] - rji*qj
             #cuento operaciones
             N_ops += 2*len(qj)
@@ -129,8 +135,7 @@ def productoExterior (A,B):
             res[i][j] = A[i]*B[j]
     return res
     
-def QRconHH (A,tol=1e-12,retornanops = False):
-    N_ops = 0
+def QRconHH (A,tol=1e-12):
     if len(A.shape) == 1:
         if A.shape[0] != 1:
             return None 
@@ -141,7 +146,7 @@ def QRconHH (A,tol=1e-12,retornanops = False):
     for k in range(0,A.shape[1]):
         X = R[k:A.shape[0],k].copy()
         print(X)
-        a= (-signo(X[0]))*(norma2(X))
+        a= (signo(X[0]))*(norma2(X))
         u = X - (a*canonico(0,A.shape[0]-k))
         if norma2(u) > tol:
             u = u/norma2(u)
@@ -150,26 +155,11 @@ def QRconHH (A,tol=1e-12,retornanops = False):
             H_moño[k:A.shape[0],k:A.shape[0]] = H
             R = multiplicacionMatricial(H_moño, R)
             Q = multiplicacionMatricial(Q,traspuestaConNumpy(H_moño))
-            #cuento operaciones
-            N_ops += 2*(A.shape[0] - k)*(A.shape[0] - k)
-            N_ops += 2*A.shape[0]*(A.shape[0] - k)
-        
-    print("Matriz Q:")
-    for fila in Q:
-        print(fila)
-    
-    print("\nMatriz R:")
-    for fila in R:
-        print(fila)
-    if retornanops:
-        print(N_ops)
-        return Q,R,N_ops
-    else:
-        return Q,R
+    return Q,R
 
 #Ejemplo (da bien)
-A= np.array([[2,3],[0,4]])
-#print (QRconGS(A, retornanops=True))
+#A= np.array([[2,3],[0,4]])
+#print (QRconHH(A))
 
 metodos = ["RH","GS"]
 def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
@@ -178,4 +168,4 @@ def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
     if metodo == "GS":
         return QRconGS(A,tol,retornanops)
     elif metodo == "RH":
-        return QRconHH(A,tol,retornanops)
+        return QRconHH(A,tol)
