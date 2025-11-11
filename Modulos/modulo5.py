@@ -57,8 +57,7 @@ def QRconGS (A,tol=1e-12, retornanops=False):
     N_ops = 0
     Q = np.zeros((len(ColumnasA),len(ColumnasA)))
     R = np.zeros((len(ColumnasA),len(ColumnasA)))
-    for j in (0,len(ColumnasA)):
-        print(j)
+    for j in range(0,len(ColumnasA)):
         a=ColumnasA[j]
         rjj = norma2(a)
         #paso a a vector
@@ -72,19 +71,35 @@ def QRconGS (A,tol=1e-12, retornanops=False):
             qj = a / rjj
             Q[0:len(ColumnasA), j] = qj
         for i in range(j+1,len(ColumnasA)):
-            rji = multiplicacionMatricial(qj,a)
+            rji = multiplicacionMatricial(qj,np.array(ColumnasA[i]))
             R[j,i] = rji
-            print(ColumnasA[i])
-            print(rji)
-            print(qj)
-            print(rji*qj)
-            print(ColumnasA[i] - rji*qj)
             ColumnasA[i] = ColumnasA[i] - rji*qj
             N_ops += 1
-
+    print("Matriz Q:")
+    for fila in Q:
+        print(fila)
+    
+    print("\nMatriz R:")
+    for fila in R:
+        print(fila)
     if retornanops:
-        return Q, R, N_ops
-    else:
-        return Q, R
-A= np.array([[2,3],[0,4]])
-print (QRconGS(A))
+        print(N_ops)
+#Ejemplo (da bien)
+#A= np.array([[2,3],[0,4]])
+#print (QRconGS(A, retornanops=True))
+
+def QRconHH (A,tol=1e-12,retornanops = False):
+    if len(A.shape) == 1:
+        if A.shape[0] != 1:
+            return None 
+    if A.shape[0] < A.shape[1]:
+        return None
+
+metodos = ["RH","GS"]
+def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
+    if metodo not in metodos:
+        return None
+    if metodo == "GS":
+        return QRconGS(A,tol,retornanops)
+    elif metodo == "RH":
+        return QRconHH(A,tol,retornanops)
