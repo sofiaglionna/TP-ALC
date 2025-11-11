@@ -5,6 +5,8 @@ Created on Mon Nov 10 12:25:15 2025
 @author: Usuario
 """
 import numpy as np
+from modulo3 import norma
+
 def columnas (A):
     res = []
     for i in range(0,A.shape[1]):
@@ -15,10 +17,7 @@ def columnas (A):
     return res
 
 def norma2(a):
-    sumatoria = 0
-    for i in a:
-        sumatoria+=i**2
-    return sumatoria**(1/2)
+    norma(a,2)
 
 def multiplicacionMatricial (A,B):
     # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
