@@ -7,6 +7,22 @@ Created on Mon Nov 10 12:25:15 2025
 import numpy as np
 from modulo3 import norma
 
+#toma matriz con numpy y devuelve matriz con numpy
+def traspuestaConNumpy (A):   
+    res = []
+    #si es un vector
+    if len(A.shape) == 1:
+        for i in range(0,A.shape[0]):
+            res.append([A[i]])
+        return np.array(res)
+    for i in range(0,A.shape[1]):
+        columna = []
+        for j in range(0,A.shape[0]):
+            columna.append(A[j][i])
+        res.append(columna)
+    print(res)
+    return np.array(res)
+
 def columnas (A):
     res = []
     for i in range(0,A.shape[1]):
@@ -17,7 +33,7 @@ def columnas (A):
     return res
 
 def norma2(a):
-    norma(a,2)
+    return norma(a,2)
 
 def multiplicacionMatricial (A,B):
     # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
@@ -73,7 +89,9 @@ def QRconGS (A,tol=1e-12, retornanops=False):
             rji = multiplicacionMatricial(qj,np.array(ColumnasA[i]))
             R[j,i] = rji
             ColumnasA[i] = ColumnasA[i] - rji*qj
-            N_ops += 1
+            #cuento operaciones
+            N_ops += 2*len(qj)
+            N_ops += 2*len(qj)
     print("Matriz Q:")
     for fila in Q:
         print(fila)
@@ -83,16 +101,75 @@ def QRconGS (A,tol=1e-12, retornanops=False):
         print(fila)
     if retornanops:
         print(N_ops)
+        return Q,R,N_ops
+    else:
+        return Q,R
 #Ejemplo (da bien)
 #A= np.array([[2,3],[0,4]])
 #print (QRconGS(A, retornanops=True))
 
+#devuelve 1 si k es positivo, -1 si es negativo
+def signo (k):
+    if k<0:
+        return (-1)
+    else: 
+        return 1
+#devuelve el vector canonico con 1 en i y dimension dim
+def canonico (i,dim):
+    res = np.zeros(dim)
+    res[i] = 1
+    return res
+
+#funcion que calcula el productoExterior entre 2 vectores fila (toma como si el primero (A) fuera columna)
+def productoExterior (A,B):
+    res = np.zeros((len(A),len(B)))
+    print(res.shape)
+    for i in range (0,len(A)):
+        for j in range (0,len(B)):
+            res[i][j] = A[i]*B[j]
+    return res
+    
 def QRconHH (A,tol=1e-12,retornanops = False):
+    N_ops = 0
     if len(A.shape) == 1:
         if A.shape[0] != 1:
             return None 
     if A.shape[0] < A.shape[1]:
         return None
+    R = A.copy()
+    Q = np.identity(A.shape[0])
+    for k in range(0,A.shape[1]):
+        X = R[k:A.shape[0],k].copy()
+        print(X)
+        a= (-signo(X[0]))*(norma2(X))
+        u = X - (a*canonico(0,A.shape[0]-k))
+        if norma2(u) > tol:
+            u = u/norma2(u)
+            H = np.identity(A.shape[0]-k) - 2*productoExterior(u,u)
+            H_moño = np.identity((A.shape[0]))
+            H_moño[k:A.shape[0],k:A.shape[0]] = H
+            R = multiplicacionMatricial(H_moño, R)
+            Q = multiplicacionMatricial(Q,traspuestaConNumpy(H_moño))
+            #cuento operaciones
+            N_ops += 2*(A.shape[0] - k)*(A.shape[0] - k)
+            N_ops += 2*A.shape[0]*(A.shape[0] - k)
+        
+    print("Matriz Q:")
+    for fila in Q:
+        print(fila)
+    
+    print("\nMatriz R:")
+    for fila in R:
+        print(fila)
+    if retornanops:
+        print(N_ops)
+        return Q,R,N_ops
+    else:
+        return Q,R
+
+#Ejemplo (da bien)
+A= np.array([[2,3],[0,4]])
+#print (QRconGS(A, retornanops=True))
 
 metodos = ["RH","GS"]
 def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):

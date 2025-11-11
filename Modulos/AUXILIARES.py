@@ -23,10 +23,15 @@ import numpy as np
 
 #======================================
 
-#traspuesta de una matriz
+#traspuesta de una matriz (devuelve una lista de listas, no una matriz)
 def traspuesta(A):
   resultado = []
   for i in range(len(A)):
+    #si A es un vector devuelvo un vector columna (en el otro caso se rompe si es un vector por len(A[0]))
+    if type(A[0]) != list:
+        for i in A:
+            resultado.append([i])
+        return resultado
     vector = []
     for j in range(len(A[0])):
       vector.append(A[j][i])

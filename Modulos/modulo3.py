@@ -63,7 +63,7 @@ def normaExacta(A,p):
                 max_norminf = suma
         res.append(max_norminf)
     # Caso norma 1 de A, tengo que buscar la maxima suma de los |elementos| por columna
-     if (1 in p):
+    if (1 in p):
         #transpongo la matriz para poder usar el codigo anterior.
         matriz = traspuesta(A)
         max_norm1 = 0
