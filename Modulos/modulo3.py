@@ -50,9 +50,10 @@ def normaMatMC(A,q,p,Np):
 def normaExacta(A,p):
 # Devuelve una lista con las normas 1 e infinito de una matriz A,
 # usando las expresiones del enunciado 2.(c)
+    res = []
     n = len(A)
     # Caso norma infinito de A, tengo que buscar la maxima suma de los |elementos| por fila
-    if p == 'inf':
+    if 'inf' in p:
         max_norminf= 0
         for i in range(n):
             suma = 0
@@ -60,8 +61,9 @@ def normaExacta(A,p):
                 suma = suma + abs(A[i][j])
             if suma > max_norminf:
                 max_norminf = suma
+        res.append(max_norminf)
     # Caso norma 1 de A, tengo que buscar la maxima suma de los |elementos| por columna
-    if p == 1:
+    if 1 in p:
         #transpongo la matriz para poder usar el codigo anterior.
         matriz = traspuesta(A)
         max_norm1 = 0
@@ -71,8 +73,8 @@ def normaExacta(A,p):
                 suma = suma + abs(matriz[i][j])
             if suma > max_norm1:
                 max_norm1 = suma
-    return [max_norm1, max_norminf]
-
+        res.append(max_norm1)
+    return res
 
 def condMC(A,p):
     # Devuelve el numero de condicion de A usando la norma inducida p.
