@@ -20,7 +20,9 @@ def traspuestaConNumpy (A):
         for j in range(0,A.shape[0]):
             columna.append(A[j][i])
         res.append(columna)
-    print(res)
+    #si res tiene solo 1 fila devuelvo esa sola sin forma de matriz (esto pasa cuando A es un vector columna)
+    if len(res) ==1:
+        return np.array(res[0])
     return np.array(res)
 
 def columnas (A):
@@ -60,7 +62,7 @@ def multiplicacionMatricial (A,B):
     else:
         return res
 
-def QRconGS (A,tol=1e-12, retornanops=False):
+def QR_con_GS (A,tol=1e-12, retornanops=False):
     #si no es cuadrada devuelve None
     if len(A.shape) == 1:
         if A.shape[0] != 1:
@@ -98,15 +100,16 @@ def QRconGS (A,tol=1e-12, retornanops=False):
             #cuento operaciones
             N_ops += 2*len(qj)
             N_ops += 2*len(qj)
-    print("Matriz Q:")
-    for fila in Q:
-        print(fila)
-    
-    print("\nMatriz R:")
-    for fila in R:
-        print(fila)
+    #print para visualizar
+    #print("Matriz Q:")
+    #for fila in Q:
+    #    print(fila)
+    #
+    #print("\nMatriz R:")
+    #for fila in R:
+    #    print(fila)
     if retornanops:
-        print(N_ops)
+    #    print(N_ops)
         return Q,R,N_ops
     else:
         return Q,R
@@ -129,13 +132,12 @@ def canonico (i,dim):
 #funcion que calcula el productoExterior entre 2 vectores fila (toma como si el primero (A) fuera columna)
 def productoExterior (A,B):
     res = np.zeros((len(A),len(B)))
-    print(res.shape)
     for i in range (0,len(A)):
         for j in range (0,len(B)):
             res[i][j] = A[i]*B[j]
     return res
     
-def QRconHH (A,tol=1e-12):
+def QR_con_HH (A,tol=1e-12):
     if len(A.shape) == 1:
         if A.shape[0] != 1:
             return None 
@@ -145,7 +147,6 @@ def QRconHH (A,tol=1e-12):
     Q = np.identity(A.shape[0])
     for k in range(0,A.shape[1]):
         X = R[k:A.shape[0],k].copy()
-        print(X)
         a= (signo(X[0]))*(norma2(X))
         u = X - (a*canonico(0,A.shape[0]-k))
         if norma2(u) > tol:
@@ -166,6 +167,6 @@ def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
     if metodo not in metodos:
         return None
     if metodo == "GS":
-        return QRconGS(A,tol,retornanops)
+        return QR_con_GS(A,tol,retornanops)
     elif metodo == "RH":
-        return QRconHH(A,tol)
+        return QR_con_HH(A,tol)

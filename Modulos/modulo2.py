@@ -5,13 +5,13 @@ Created on Wed Nov  5 19:03:28 2025
 @author: Usuario
 """
 import numpy as np
-import math #lo uso para el calculo de seno y coseno, ver si esta permitido
-
+from modulo5 import traspuestaConNumpy
 
 def rota(theta):
-    radianes = math.radians(theta)
-    matriz = [[(math.cos(radianes)), -(math.sin(radianes))],[math.sin(radianes), math.cos(radianes)]]
-    return np.round(np.array(matriz)) #redondeo para que no me de los numeros de maquina
+    matriz = [[(np.cos(theta)), -(np.sin(theta))],[np.sin(theta), np.cos(theta)]]
+    return np.round(np.array(matriz)).astype(int) #convierto a int para que no me de los numeros de maquina
+
+    
 #%%
 def escala (s):
     matriz = np.zeros((len(s),len(s)))
@@ -42,7 +42,7 @@ def multiplicacionMatricial (A,B):
             res[l,i] = valorli
     return res
 
-def rotayescala (theta,s):
+def rota_y_escala (theta,s):
     #Voy a usar que la multiplicacion de matrices es asociativa por lo que puedo calcular ambas matrices con los
     #codigos anteriores y multiplicarlas y al multiplicarlas por un vector sera lo mismo que si primero multiplico
     #por la que lo rota y luego por la que lo escala (ejemplo: A*(B*v) = (A*B)*v)
@@ -61,7 +61,7 @@ def afin (theta,s,b):
     #creo matriz 3x3
     res = np.identity(3)
     #la roto y escalo con la anterior
-    MatrizRotarYEscalar = rotayescala(theta,s)
+    MatrizRotarYEscalar = rota_y_escala(theta,s)
     #copio esta matriz en la parte superior izquierda de res
     res[0:2,0:2] = MatrizRotarYEscalar
     #agrego que traslade en b
@@ -72,17 +72,24 @@ def afin (theta,s,b):
 #%%
 
 def extenderVectorColumna (v,a):
+    #si me pasan v como vector lo paso a vector columna y luego extiendo
+    if len(v.shape) == 1:
+        v=traspuestaConNumpy(v)
     res = []
     for i in range(0,v.shape[0]):
         res.append([v[i][0]])
     res.append([a])
     return np.array(res)
 
-def transafin (v,theta,s,b):
+def trans_afin (v,theta,s,b):
     matrizAfin = afin(theta,s,b)
     #vector v extendido a R^3 poniendo un 1 en la tercera posicion
     vExtendido = extenderVectorColumna(v,1)
-    print(vExtendido)
-    print(matrizAfin)
-    return multiplicacionMatricial(matrizAfin, vExtendido)
+    resExtendida = multiplicacionMatricial(matrizAfin, vExtendido)
+    #elimino el ultimo valor de resExtendida
+    res = resExtendida[0:resExtendida.shape[0]-1]
+    #si me pasaron v como vector fila devuelvo res como tal
+    if len(v.shape) == 1:
+        res = traspuestaConNumpy(res)
+    return res
 

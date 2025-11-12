@@ -21,14 +21,16 @@ def error(x,y):
 def error_relativo (x,y):
     return (error(x,y)/absoluto(x))
 
+
 #funcion que devuelve True si 2 matrices A y B son iguales (asumo que se puede usar shape)
-def matricesIguales(A,B):
-    if (A.shape[0] != B.shape[0]) or (A.shape[1] != B.shape[1]):
+def matricesIguales(A,B,tol=1e-8):
+    if A.shape != B.shape:
         return False
     else:
         for i in range (A.shape[0]):
             for j in range (A.shape[1]):
-                if A[i,j] != B[i,j]:
+                #agrego tolerancia ya que sino no pasa los tests porque me quedan valores con numero de maquina
+                if error(A[i,j], B[i,j]) > tol:
                     return False
     return True
 
