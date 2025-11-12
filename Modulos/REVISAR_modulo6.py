@@ -32,6 +32,22 @@ def esSimetrica(A):
         return False
 
 
+def producto_interno(v, w):
+    res = 0
+    for i in range(0, len(v), 1):
+        res += (v[i] * w[i])
+    return res
+
+
+def producto_externo(v, w):
+    n = len(v)
+    m = len(w)
+    res = np.zeros((n, m))
+    for i in range(0, n, 1):
+        for j in range(0, m, 1):
+            res[i, j] = (v[i] * w[j])
+    return res
+
 
 def multiplicacion_de_matrices_sin_numpy(A,B):
     n = A.shape[0] # filas de A
@@ -86,7 +102,7 @@ def metpot2k(A, tol=1e-15, K=1000):
 
 
 
-def diagRH(A, tol=1e-15, K=1000):  ############################ FALTA MODIFICAR diagRH EN DONDE SE "@" POR LA FUNCION "multiplicacion_De_matrices_sin_numpy" ############################
+def diagRH(A,tol=1e-15,K=1000):
     if esSimetrica(A) == False:
         return None
         
@@ -97,13 +113,13 @@ def diagRH(A, tol=1e-15, K=1000):  ############################ FALTA MODIFICAR 
     e1[0] = 1  # e1 es el primer vector canonico
 
     u = e1 - v1
-    Hv1 = np.eye(n) - 2 * (np.outer(u, u) / np.dot(u,u)) # np.outer(n, n) es producto externo ; np.dot(u,u) es la norma al cuadrado de (e1 - v1)
+    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # np.outer(n, n) es producto externo ; np.dot(u,u) es la norma al cuadrado de (e1 - v1)
 
     if n == 2:
         S = Hv1
-        D = Hv1 @ A @ Hv1.T
+        D = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
     else:
-        B = Hv1 @ A @ Hv1.T
+        B = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
         A_moño = B[1:, 1:]
         S_moño, D_moño = diagRH(A_moño,tol=1e-15,K=1000)
         
@@ -114,6 +130,6 @@ def diagRH(A, tol=1e-15, K=1000):  ############################ FALTA MODIFICAR 
         auxiliar = np.zeros((n, n))
         auxiliar[0, 0] = 1
         auxiliar[1:, 1:] = S_moño
-        S = Hv1 @ auxiliar
+        S = multiplicacion_de_matrices_sin_numpy(Hv1, auxiliar)   # Hv1 @ auxiliar
 
     return S, D
