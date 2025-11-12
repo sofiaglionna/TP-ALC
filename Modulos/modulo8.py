@@ -61,9 +61,6 @@ def multiplicacion_de_matrices_sin_numpy(A,B):
 
 
 
-
-
-
 # Funcion del ejercicio
 
 def svd_reducida(A, k="max", tol=1e-15):
@@ -73,31 +70,30 @@ def svd_reducida(A, k="max", tol=1e-15):
     if n >= m: # Filas >= Columnas
         B = multiplicacion_de_matrices_sin_numpy(A.T, A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatV, D = diagRH(B, tol, K)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatV_aux, D_aux = diagRH(B, tol, k)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
+        autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
+        hatV = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
         
+        for i in range(0, D_aux.shape[0], 1):
+            if abs(D_aux[i,i]) > tol:  # si el autovalor es mayor a tol (que la cumple)...
+                autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux.
+                hatV.append(hatV_aux[:, i].tolist())  # guardo la columna válida.
+                
+        hatV = np.array(hatV).T  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
 
-        for i in range(D.shape[0] - 1, -1, -1):  # Lo hacemos de atras para adelante para que no se desincronize las filas y columnas cuando las eliminamos.
-            if abs(D[i, i]) < tol:
-                #D = np.delete(D, i, axis=0)  # np.delete() devuelve una nueva matriz, osea que no modifica la original. Por eso el D = np.delete().
-                #D = np.delete(D, i, axis=1)  # axis = 0 aplica a la fila  ;  axis = 1 aplica a la columna.
-                #hatV = np.delete(hatV, i, axis=1)
-
-                # Crear una lista vacia que guarde los autovalores que cumple con la tolerancia y luego con np.diag() crear la matriz con los autovalores guardados en la lista
-
-        autovalores = np.diag(D) # Matriz con los autovalores (ya filtrados por la tolerancia) en su diagonal.
         valores_singulares = []
 
-        for j in range(0, len(autovalores), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
-            valores_singulares.append(np.sqrt(autovalores[j]))
+        for j in range(0, len(autovalores_aux), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
+            valores_singulares.append(np.sqrt(autovalores_aux[j]))
 
         hatSig = np.diag(valores_singulares)  # Armo la matriz Sigma con los valores singulares en su diagonal.
         
         hatU = np.zeros((n, len(valores_singulares)))  # Creamos la matriz hatU con una matriz de ceros de dimension n (cant. filas de A) x cant. valores singulares)
 
-        for k in range(0, len(valores_singulares), 1):  # Calcula hatU
-            Av = multiplicacion_de_matrices_sin_numpy(A, hatV[:, k])  # A * v_k
-            hatU[:, k] = Av / valores_singulares[k]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
+        for t in range(0, len(valores_singulares), 1):  # Calcula hatU
+            Av = multiplicacion_de_matrices_sin_numpy(A, hatV[:, t])  # A * v_k
+            hatU[:, t] = Av / valores_singulares[t]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
                                                      # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
         return hatU, hatSig, hatV
@@ -106,29 +102,30 @@ def svd_reducida(A, k="max", tol=1e-15):
     else: # Filas < Columnas
         B = multiplicacion_de_matrices_sin_numpy(A, A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatU, D = diagRH(B, tol, K)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatU_aux, D_aux = diagRH(B, tol, k)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
+        autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
+        hatU = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
         
+        for i in range(0, D_aux.shape[0], 1):
+            if abs(D_aux[i,i]) > tol:  # si el autovalor es mayor a tol (que la cumple)...
+                autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux.
+                hatU.append(hatU_aux[:, i].tolist()) # elimino la columna (autovector) del autovalor menor a tol.
+                
+        hatU = np.array(hatU).T  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
 
-        for i in range(D.shape[0] - 1, -1, -1):  # Lo hacemos de atras para adelante para que no se desincronize las filas y columnas cuando las eliminamos.
-            if abs(D[i, i]) < tol:
-                D = np.delete(D, i, axis=0)  # np.delete() devuelve una nueva matriz, osea que no modifica la original. Por eso el D = np.delete().
-                D = np.delete(D, i, axis=1)  # axis = 0 aplica a la fila  ;  axis = 1 aplica a la columna.
-                hatU = np.delete(hatU, i, axis=1)
-
-        autovalores = np.diag(D) # Matriz con los autovalores (ya filtrados por la tolerancia) en su diagonal.
         valores_singulares = []
 
-        for j in range(0, len(autovalores), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
-            valores_singulares.append(np.sqrt(autovalores[j]))
+        for j in range(0, len(autovalores_aux), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
+            valores_singulares.append(np.sqrt(autovalores_aux[j]))
 
         hatSig = np.diag(valores_singulares)  # Armo la matriz Sigma con los valores singulares en su diagonal.
         
         hatV = np.zeros((m, len(valores_singulares)))  # Creamos la matriz hatV con una matriz de ceros de dimension m (cant. columnas de A) x cant. valores singulares)
 
-        for k in range(0, len(valores_singulares), 1):  # Calcula hatU
-            A_tras_u = multiplicacion_de_matrices_sin_numpy(A.T, hatU[:, k])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
-            hatV[:, k] = A_tras_u / valores_singulares[k]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
+        for t in range(0, len(valores_singulares), 1):  # Calcula hatV
+            A_tras_u = multiplicacion_de_matrices_sin_numpy(A.T, hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
+            hatV[:, t] = A_tras_u / valores_singulares[t]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
                                                            # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
         return hatU, hatSig, hatV
