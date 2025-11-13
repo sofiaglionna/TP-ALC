@@ -52,6 +52,32 @@ def diagRH(A,tol=1e-15,K=1000):
     return S, D
 
 
+def multiplicacionMatricial (A,B):
+    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
+    if len(A.shape) == 1:
+        A = A.reshape(1, -1)
+    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
+    if len(B.shape) == 1:
+       B = B.reshape(-1, 1)
+    if (A.shape[1] != B.shape[0]):
+        raise ValueError("Dimensiones incompatibles para la multiplicación.")
+    res=np.zeros((A.shape[0],B.shape[1]))
+    #itero en las filas de A
+    for l in range(0,A.shape[0]):
+        #itero en las columnas de B para una misma fila de A
+        for i in range(0,B.shape[1]):
+            valorli = 0
+            #calculo el valor de la posicion (l,i) multiplicando fila por columna
+            for j in range(0,B.shape[0]):
+                valorli += A[l,j]*B[j,i]
+            res[l,i] = valorli
+
+    if res.shape[1] == 1:
+        res = res.flatten()  # flatten() aplana un arreglo 2D o multidimensional en un vector 1D. Lo agrego para que pase el test del Labo08  "test_svd_reducida_mn(A, tol=1e-15)".
+        
+    return res
+
+
 def multiplicacion_de_matrices_sin_numpy(A,B):
     n = A.shape[0] # filas de A
     m = A.shape[1] # columnas de A
