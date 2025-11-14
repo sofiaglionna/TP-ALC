@@ -172,7 +172,12 @@ def svd_reducida(A, k="max", tol=1e-15):
             Av = multiplicacionMatricial(A, hatV[:, t])  # A * v_k
             hatU[:, t] = Av / valores_singulares[t]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
                                                      # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
-
+        
+        if k != "max":  # Para el test "tamaños de las reducidad", recortamos los tamaños de las matrices en base al valor de k.
+            hatU = hatU[:, :k]
+            hatV = hatV[:, :k]
+            hatSig = hatSig[:k, :k]
+            
         return hatU, hatSig, hatV
 
     
@@ -205,6 +210,11 @@ def svd_reducida(A, k="max", tol=1e-15):
             hatV[:, t] = A_tras_u / valores_singulares[t]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
                                                            # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
+        if k != "max":  # Para el test "tamaños de las reducidad", recortamos los tamaños de las matrices en base al valor de k.
+            hatU = hatU[:, :k]
+            hatV = hatV[:, :k]
+            hatSig = hatSig[:k, :k]
+            
         return hatU, hatSig, hatV
         
         
