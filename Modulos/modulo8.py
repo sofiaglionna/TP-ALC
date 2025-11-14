@@ -30,13 +30,13 @@ def diagRH(A,tol=1e-15,K=1000):
     e1[0] = 1  # e1 es el primer vector canonico
 
     u = e1 - v1
-    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # np.outer(n, n) es producto externo ; np.dot(u,u) es la norma al cuadrado de (e1 - v1)
+    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
 
     if n == 2:
         S = Hv1
-        D = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
+        D = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
     else:
-        B = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
+        B = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
         A_moño = B[1:, 1:]
         S_moño, D_moño = diagRH(A_moño,tol=1e-15,K=1000)
         
@@ -47,12 +47,12 @@ def diagRH(A,tol=1e-15,K=1000):
         auxiliar = np.zeros((n, n))
         auxiliar[0, 0] = 1
         auxiliar[1:, 1:] = S_moño
-        S = multiplicacion_de_matrices_sin_numpy(Hv1, auxiliar)   # Hv1 @ auxiliar
+        S = multiplicacionMatricial(Hv1, auxiliar)   # Hv1 @ auxiliar
 
     return S, D
 
 
-def multiplicacionMatricial (A,B):
+def multiplicacionMatricial(A, B):
     # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
     if len(A.shape) == 1:
         A = A.reshape(1, -1)
