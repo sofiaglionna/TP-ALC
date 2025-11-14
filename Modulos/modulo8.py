@@ -31,6 +31,28 @@ def esSimetrica(A):
 
 
 
+def metpot2k(A, tol=1e-15, K=1000):
+    n = A.shape[0]
+    
+    v = np.random.rand(n)  # genero un autovector
+    v_barra = f_A_kveces(A, v, 2)
+    e = np.dot((v_barra.T), v)  # medidor de parentezco entre v_barra_traspuesta y v
+    k = 0  # cantidad de iteraciones
+
+    while abs(e - 1) > tol and k < K:
+        v = v_barra
+        v_barra = f_A(A, v)
+        e = np.dot((v_barra.T), v)
+        k += 1
+
+    Av = np.dot(A, v_barra)
+    landa = np.dot((v_barra.T), Av)  # el autovalor
+    epsilon = abs(e - 1)  # el error
+
+    return v_barra, landa, k
+
+
+
 def diagRH(A,tol=1e-15,K=1000):
     if esSimetrica(A) == False:
         return None
