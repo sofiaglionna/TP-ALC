@@ -19,6 +19,18 @@ def producto_externo(v, w):
     return res
 
 
+def esSimetrica(A):
+    trasp = traspuesta(A)
+    if esCuadrada(A):
+        if np.array_equal(A, trasp) == True:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+
 def diagRH(A,tol=1e-15,K=1000):
     if esSimetrica(A) == False:
         return None
