@@ -1,4 +1,4 @@
-import numpy as np
+"import numpy as np
 
 #Funciones Auxiliares
 
@@ -78,27 +78,27 @@ def multiplicacionMatricial(A, B):
     return res
 
 
-def multiplicacion_de_matrices_sin_numpy(A,B):
-    n = A.shape[0] # filas de A
-    m = A.shape[1] # columnas de A
-    r = B.shape[0] # filas de B
-    s = B.shape[1] # columnas de B
+#def multiplicacion_de_matrices_sin_numpy(A,B):
+    #n = A.shape[0] # filas de A
+    #m = A.shape[1] # columnas de A
+    #r = B.shape[0] # filas de B
+    #s = B.shape[1] # columnas de B
 
-    if m == n:
-        res = np.zeros((n, s))
+    #if m == n:
+     #   res = np.zeros((n, s))
 
-        for i in range(0, n ,1):
-            for j in range(0, s, 1):
-                sumatoria = 0
-                t = 0
-                while t < m:
-                    sumatoria += A[i, t] * B[t, j]
-                    t += 1
-                res[i,j] = sumatoria
-        return res
+      #  for i in range(0, n ,1):
+       #     for j in range(0, s, 1):
+        #        sumatoria = 0
+         #       t = 0
+          #      while t < m:
+           #         sumatoria += A[i, t] * B[t, j]
+            #        t += 1
+             #   res[i,j] = sumatoria
+       # return res
 
-    else:
-        raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
+    #else:
+     #   raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
 
 
 
@@ -111,7 +111,7 @@ def svd_reducida(A, k="max", tol=1e-15):
     m = A.shape[1] # Cantidad de columnas de A
 
     if n >= m: # Filas >= Columnas
-        B = multiplicacion_de_matrices_sin_numpy(A.T, A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
+        B = multiplicacionMatricial(A.T, A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
         hatV_aux, D_aux = diagRH(B, tol, k)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
@@ -135,7 +135,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         hatU = np.zeros((n, len(valores_singulares)))  # Creamos la matriz hatU con una matriz de ceros de dimension n (cant. filas de A) x cant. valores singulares)
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatU
-            Av = multiplicacion_de_matrices_sin_numpy(A, hatV[:, t])  # A * v_k
+            Av = multiplicacionMatricial(A, hatV[:, t])  # A * v_k
             hatU[:, t] = Av / valores_singulares[t]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
                                                      # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
@@ -143,7 +143,7 @@ def svd_reducida(A, k="max", tol=1e-15):
 
     
     else: # Filas < Columnas
-        B = multiplicacion_de_matrices_sin_numpy(A, A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
+        B = multiplicacionMatricial(A, A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
         hatU_aux, D_aux = diagRH(B, tol, k)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
@@ -167,7 +167,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         hatV = np.zeros((m, len(valores_singulares)))  # Creamos la matriz hatV con una matriz de ceros de dimension m (cant. columnas de A) x cant. valores singulares)
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatV
-            A_tras_u = multiplicacion_de_matrices_sin_numpy(A.T, hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
+            A_tras_u = multiplicacionMatricial(A.T, hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
             hatV[:, t] = A_tras_u / valores_singulares[t]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
                                                            # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
