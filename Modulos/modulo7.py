@@ -20,6 +20,41 @@ def producto_externo(v, w):
     return res
 
 
+
+def esSimetrica(A):
+    trasp = traspuesta(A)
+    if esCuadrada(A):
+        if np.array_equal(A, trasp) == True:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+
+def metpot2k(A, tol=1e-15, K=1000):
+    n = A.shape[0]
+    
+    v = np.random.rand(n)  # genero un autovector
+    v_barra = f_A_kveces(A, v, 2)
+    e = np.dot((v_barra.T), v)  # medidor de parentezco entre v_barra_traspuesta y v
+    k = 0  # cantidad de iteraciones
+
+    while abs(e - 1) > tol and k < K:
+        v = v_barra
+        v_barra = f_A(A, v)
+        e = np.dot((v_barra.T), v)
+        k += 1
+
+    Av = np.dot(A, v_barra)
+    landa = np.dot((v_barra.T), Av)  # el autovalor
+    epsilon = abs(e - 1)  # el error
+
+    return v_barra, landa, k
+
+
+
 def diagRH(A,tol=1e-15,K=1000):
     if esSimetrica(A) == False:
         return None
@@ -31,13 +66,13 @@ def diagRH(A,tol=1e-15,K=1000):
     e1[0] = 1  # e1 es el primer vector canonico
 
     u = e1 - v1
-    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # np.outer(n, n) es producto externo ; np.dot(u,u) es la norma al cuadrado de (e1 - v1)
+    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
 
     if n == 2:
         S = Hv1
-        D = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
+        D = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
     else:
-        B = multiplicacion_de_matrices_sin_numpy(multiplicacion_de_matrices_sin_numpy(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
+        B = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
         A_moño = B[1:, 1:]
         S_moño, D_moño = diagRH(A_moño,tol=1e-15,K=1000)
         
@@ -48,32 +83,35 @@ def diagRH(A,tol=1e-15,K=1000):
         auxiliar = np.zeros((n, n))
         auxiliar[0, 0] = 1
         auxiliar[1:, 1:] = S_moño
-        S = multiplicacion_de_matrices_sin_numpy(Hv1, auxiliar)   # Hv1 @ auxiliar
+        S = multiplicacionMatricial(Hv1, auxiliar)   # Hv1 @ auxiliar
 
     return S, D
 
 
-def multiplicacion_de_matrices_sin_numpy(A,B):
-    n = A.shape[0] # filas de A
-    m = A.shape[1] # columnas de A
-    r = B.shape[0] # filas de B
-    s = B.shape[1] # columnas de B
+def multiplicacionMatricial(A, B):
+    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
+    if len(A.shape) == 1:
+        A = A.reshape(1, -1)
+    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
+    if len(B.shape) == 1:
+       B = B.reshape(-1, 1)
+    if (A.shape[1] != B.shape[0]):
+        raise ValueError("Dimensiones incompatibles para la multiplicación.")
+    res=np.zeros((A.shape[0],B.shape[1]))
+    #itero en las filas de A
+    for l in range(0,A.shape[0]):
+        #itero en las columnas de B para una misma fila de A
+        for i in range(0,B.shape[1]):
+            valorli = 0
+            #calculo el valor de la posicion (l,i) multiplicando fila por columna
+            for j in range(0,B.shape[0]):
+                valorli += A[l,j]*B[j,i]
+            res[l,i] = valorli
 
-    if m == n:
-        res = np.zeros((n, s))
-
-        for i in range(0, n ,1):
-            for j in range(0, s, 1):
-                sumatoria = 0
-                t = 0
-                while t < m:
-                    sumatoria += A[i, t] * B[t, j]
-                    t += 1
-                res[i,j] = sumatoria
-        return res
-
-    else:
-        raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
+    if res.shape[1] == 1:
+        res = res.flatten()  # flatten() aplana un arreglo 2D o multidimensional en un vector 1D. Lo agrego para que pase el test del Labo08  "test_svd_reducida_mn(A, tol=1e-15)".
+        
+    return res
 
 
 
@@ -122,7 +160,7 @@ def transicion_al_azar_uniforme(n,thres):
 
 def nucleo(A,tol):
     # Primero calculamos A^t por A y lo llamamos B
-    B = multiplicacion_de_matrices_sin_numpy(A.T,A)
+    B = multiplicacionMatricial(A.T,A)
 
     # Luego uso diagRH (diagonalizacion con Householder)
     S, D = diagRH(B, tol, K=1000)
