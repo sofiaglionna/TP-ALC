@@ -21,6 +21,19 @@ def producto_externo(v, w):
 
 
 
+def traspuesta(A):
+    return A.T
+
+
+
+def esCuadrada(A):
+    if A.shape[0] == A.shape[1]:
+        return True
+    else:
+        return False
+
+
+
 def esSimetrica(A):
     trasp = traspuesta(A)
     if esCuadrada(A):
@@ -30,6 +43,24 @@ def esSimetrica(A):
             return False
     else:
         return False
+
+
+
+def f_A(A, v):
+    w = np.dot(A,v)  # Multiplico A por v y el vector resultado lo llamo w
+    w_normalizado = np.linalg.norm(w, 2) # Calculo la norma dos del vector w
+    res = w/w_normalizado # Normalizo el vector w
+
+    return res
+
+
+
+def f_A_kveces(A, v, k):
+    w = v.copy()
+    for i in range(0,k,1):
+        w = f_A(A, w)
+    
+    return w
 
 
 
