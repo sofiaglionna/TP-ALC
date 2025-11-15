@@ -23,6 +23,23 @@ import numpy as np
 
 #======================================
 
+def traspuestaConNumpy (A):   
+    res = []
+    #si es un vector
+    if len(A.shape) == 1:
+        for i in range(0,A.shape[0]):
+            res.append([A[i]])
+        return np.array(res)
+    for i in range(0,A.shape[1]):
+        columna = []
+        for j in range(0,A.shape[0]):
+            columna.append(A[j][i])
+        res.append(columna)
+    #si res tiene solo 1 fila devuelvo esa sola sin forma de matriz (esto pasa cuando A es un vector columna)
+    if len(res) ==1:
+        return np.array(res[0])
+    return np.array(res)
+
 #traspuesta de una matriz (devuelve una lista de listas, no una matriz)
 def traspuesta(A):
   resultado = []
