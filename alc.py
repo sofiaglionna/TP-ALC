@@ -106,18 +106,17 @@ La función devuelve W.
 
 #Calculamos Q y R de X traspuesta que son las que necesitamos para el algoritmo 3
 XtTraspuesta = traspuesta(Xt)
-QyR = calculaQR(XtTraspuesta, "RH")
-
-Q = QyR[0]
-R = QyR[1]
+QyRHH = calculaQR(XtTraspuesta, "RH")
+QHH = QyRHH[0]
+RHH = QyRHH[1]
 #Q.shape = 2000x2000
 #R.shape = 2000x1536
 
 #me quedo con las filas y columnas utiles de QR
 filas, columnas = XtTraspuesta.shape
-Q = Q[0:filas,0:columnas]
-R = R[0:columnas,0:columnas]
-#%%
+QHH = QHH[0:filas,0:columnas]
+RHH = RHH[0:columnas,0:columnas]
+
 def pinvHouseHolder(Q, R, Y):
     Rtraspuesta = traspuesta(R)
     pseudoInversaX = multiplicacionMatricial(Q, inversa(Rtraspuesta))
@@ -131,5 +130,22 @@ recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
 descomposición QR utilizando GramSmidth, y Y la matriz de targets de
 entrenamiento. La función devuelve W.
 """
+
+QyRGS = calculaQR(XtTraspuesta, "GS")
+QGS = QyRGS[0]
+RGS = QyRGS[1]
+#Q.shape = 2000x2000
+#R.shape = 2000x1536
+
+#me quedo con las filas y columnas utiles de QR
+
+QGS = QGS[0:filas,0:columnas]
+RGS = RGS[0:columnas,0:columnas]
+###########################################
+#el enunciado dice gram schmidt clasico, nosotros usamos el modificado. Lo cambiamos?
+##########################################
 def pinvGramSchmidt(Q, R, Y):
-    return True
+    Rtraspuesta = traspuesta(R)
+    pseudoInversaX = multiplicacionMatricial(Q, inversa(Rtraspuesta))
+    W = multiplicacionMatricial(Y,pseudoInversaX)
+    return W
