@@ -481,27 +481,31 @@ def productoExterior (A,B):
             res[i][j] = A[i]*B[j]
     return res
     
+#No usamos el algoritmo de la guia, usamos uno mejor optimizado (no construye H moño, muy costoso en matrices A grandes)
 def QR_con_HH (A,tol=1e-12):
     if len(A.shape) == 1:
         if A.shape[0] != 1:
             return None 
     if A.shape[0] < A.shape[1]:
         return None
+    filas, columnas = A.shape
+    
     R = A.copy()
     #paso a float para evitar errores
     R= R.astype(float)
-    Q = np.identity(A.shape[0])
-    for k in range(0,A.shape[1]):
-        X = R[k:A.shape[0],k].copy()
+    Q = np.identity(filas)
+    for k in range(0,columnas):
+        X = R[k:filas,k].copy()
         a= (signo(X[0]))*(norma2(X))
-        u = X - (a*canonico(0,A.shape[0]-k))
+        u = X - (a*canonico(0,filas-k))
         if norma2(u) > tol:
             u = u/norma2(u)
-            H = np.identity(A.shape[0]-k) - 2*productoExterior(u,u)
-            H_moño = np.identity((A.shape[0]))
-            H_moño[k:A.shape[0],k:A.shape[0]] = H
-            R =(multiplicacionMatricialConNumpy(H_moño, R))
-            Q = multiplicacionMatricialConNumpy(Q,traspuestaConNumpy(H_moño))
+            R_sub = R[k:filas, 0:columnas]
+            UporR = multiplicacionMatricialConNumpy(u, R_sub)
+            R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
+            Q_sub = Q[0:filas, k:filas]
+            Qu = multiplicacionMatricialConNumpy(Q_sub, u)
+            Q[0:filas, k:filas] = Q_sub - 2*productoExterior(Qu, u)
     return Q,R
 
 metodos = ["RH","GS"]

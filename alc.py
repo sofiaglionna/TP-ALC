@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from Modulos.AUXILIARES import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial
-from Modulos.modulo5 import calculaQR
+from Modulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial, calculaQR
 
 # ========================================
 #%% 1. LECTURA DE DATOS
@@ -105,21 +104,25 @@ descomposición QR utilizando HouseHolder, y Y la matriz de targets de entrenami
 La función devuelve W.
 """
 
+#Calculamos Q y R de X traspuesta que son las que necesitamos para el algoritmo 3
+XtTraspuesta = traspuesta(Xt)
+QyR = calculaQR(XtTraspuesta, "RH")
 
-QyR = calculaQR(traspuesta(Xt), "RH")
 Q = QyR[0]
 R = QyR[1]
+#Q.shape = 2000x2000
+#R.shape = 2000x1536
 
-def QRreducidos (Q,R,Xt):
-    return True
-print(R.shape)
+#me quedo con las filas y columnas utiles de QR
+filas, columnas = XtTraspuesta.shape
+Q = Q[0:filas,0:columnas]
+R = R[0:columnas,0:columnas]
 #%%
 def pinvHouseHolder(Q, R, Y):
-    
     Rtraspuesta = traspuesta(R)
-    
-    return True
-
+    pseudoInversaX = multiplicacionMatricial(Q, inversa(Rtraspuesta))
+    W = multiplicacionMatricial(Y,pseudoInversaX)
+    return W
 
 #%% b) Gram-Schmidt 
 """
