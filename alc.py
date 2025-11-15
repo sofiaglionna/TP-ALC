@@ -1,16 +1,15 @@
 import numpy as np
 import pandas as pd
 
-### Ejercicio 1 ###
+# ========================================
+#%% 1. LECTURA DE DATOS
+# ========================================
 
-############# DATOS IMPORTANTES PARA ENTENDER EL EJERCICIO #############
+# Cada embedding es un vector de dimension 1535 x 1. Cada embedding representa una imagen, donde en las 1536 filas, tiene un valor numerico ###
+# donde cada número representa una propiedad abstracta que la red aprendió a detectar como por ejemplo bordes, textura, forma, color, etc. ####
 
-### Cada embedding es un vector de dimension 1535 x 1. Cada embedding representa una imagen, donde en las 1536 filas, tiene un valor numerico ###
-#### donde cada número representa una propiedad abstracta que la red aprendió a detectar como por ejemplo bordes, textura, forma, color, etc. ####
+# Cada número lo extrajo previamente EfficientNet cuando procesó la imagen, y nosotros no sabemos que representa cada valor, pero juntos forman una "firma matemática" de la imagen.
 
-##### Cada número lo extrajo previamente EfficientNet cuando procesó la imagen, y nosotros no sabemos que representa cada valor, pero juntos forman una "firma matemática" de la imagen.
-
-#%%
 ### DEVUELVE: Xt, Xv, Yt, Yv
 ### Donde:
 ### Xt = 1536 filas x 2000 columnas (1000 img de gatos y 1000 img de perros)
@@ -66,4 +65,28 @@ dfYvDogs = pd.DataFrame(YvDogs) #Spyder
 Yv = np.concatenate((YvCats, YvDogs), axis=1)
 dfYv = pd.DataFrame(Yv) #Spyder
 
-#%%
+# ========================================
+#%% 2. ECUACIONES NORMALES - Algoritmo 1
+# ========================================
+"""
+La función se denomina pinvEcuacionesNormales(L, Y). 
+-La función recibe la matriz X de los embeddings de entrenamiento, ---> Esto no lo entiendo pq no se le pasa como parámetro "X"
+-L la matriz de Cholesky, y Y la matriz de targets de entrenamiento. 
+-La función devuelve W.
+"""
+
+def pinVEcuacionesNormales(L, Y):
+    return True
+
+
+# ========================================
+#%% 3. DESCOMPOSICIÓN EN VALORES SINGULARES (SVD) - Algoritmo 2
+# ========================================
+"""
+La función se denomina pinvSVD(U, S, V, Y). 
+-La función recibe la matriz X de los embeddings de entrenamiento,
+-las matrices U, S, V de la descomposición SVD, e Y la matriz de targets de entrenamiento. 
+-La función devuelve W.
+"""
+def pinvSVD(U, S, V, Y):
+    return True
