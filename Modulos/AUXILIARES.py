@@ -30,14 +30,13 @@ def traspuestaConNumpy (A):
         for i in range(0,A.shape[0]):
             res.append([A[i]])
         return np.array(res)
-    for i in range(0,A.shape[1]):
+    
+    filas, columnas = A.shape
+    for i in range(0,columnas):
         columna = []
-        for j in range(0,A.shape[0]):
+        for j in range(0,filas):
             columna.append(A[j][i])
         res.append(columna)
-    #si res tiene solo 1 fila devuelvo esa sola sin forma de matriz (esto pasa cuando A es un vector columna)
-    if len(res) ==1:
-        return np.array(res[0])
     return np.array(res)
 
 #traspuesta de una matriz (devuelve una lista de listas, no una matriz)
@@ -77,27 +76,43 @@ def transformar(A,x):
   return vector
 
 
-# Vi que hay dos versiones de esta funcion, puse las dos y dsp vemos con cual nos quedamos
-#multiplica dos matrices compatibles
-def multiplicacionMatricial (A,B):
+def multiplicacionMatricialConNumpy (A,B):
+    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
     if len(A.shape) == 1:
         A = A.reshape(1, -1)
+    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
     if len(B.shape) == 1:
        B = B.reshape(-1, 1)
     if (A.shape[1] != B.shape[0]):
         return "No se puede calcular, dimensión incompatible"
+    
+    #traspongo B para optimizar
+    BT = traspuestaConNumpy(B)
+    
     res=np.zeros((A.shape[0],B.shape[1]))
-
-    for l in range(0,A.shape[0]):
-        for i in range(0,B.shape[1]):
+    
+    #me guardo ya los shapes para optimizar
+    NfilasA, NcolumnasA = A.shape
+    NfilasBT, NcolumnasBT = BT.shape
+    
+    #itero en las filas de A
+    for l in range(0,NfilasA):
+        filaA = A[l]
+        #itero en las columnas de B para una misma fila de A
+        for i in range(0,NfilasBT):
+            filaBT = BT[i]
             valorli = 0
-            for j in range(0,B.shape[0]):
-                valorli += A[l,j]*B[j,i]
+            #calculo el valor de la posicion (l,i) multiplicando fila por columna
+            for j in range(0, NcolumnasA):
+                #la fila j de BT es la columna j de B
+                valorli += filaA[j] * filaBT[j]
             res[l,i] = valorli
+    #si el resultado no es una matriz sino un vector o valor devuelvo solo esa "fila" (primer elemento de la lista)
     if res.shape[0] == 1:
         return res[0]
     else:
         return res
+
     
 def multiplicacion_de_matrices_sin_numpy(A,B):
     n = A.shape[0] # filas de A
