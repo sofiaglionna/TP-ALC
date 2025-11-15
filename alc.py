@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from Modulos.AUXILIARES import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial
+from Modulos.modulo5 import calculaQR
 
 # ========================================
 #%% 1. LECTURA DE DATOS
@@ -89,4 +91,42 @@ La función se denomina pinvSVD(U, S, V, Y).
 -La función devuelve W.
 """
 def pinvSVD(U, S, V, Y):
+    return True
+
+# ========================================
+#%% 4. DESCOMPOSICIÓN QR - Algoritmo 3
+# ========================================
+
+#%% a) HouseHolder
+"""
+La función se denomina pinvHouseHolder(Q, R, Y). La función recibe
+la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
+descomposición QR utilizando HouseHolder, y Y la matriz de targets de entrenamiento.
+La función devuelve W.
+"""
+
+
+QyR = calculaQR(traspuesta(Xt), "RH")
+Q = QyR[0]
+R = QyR[1]
+
+def QRreducidos (Q,R,Xt):
+    return True
+print(R.shape)
+#%%
+def pinvHouseHolder(Q, R, Y):
+    
+    Rtraspuesta = traspuesta(R)
+    
+    return True
+
+
+#%% b) Gram-Schmidt 
+"""
+La función se denomina pinvGramSchmidt(Q, R, Y). La función
+recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
+descomposición QR utilizando GramSmidth, y Y la matriz de targets de
+entrenamiento. La función devuelve W.
+"""
+def pinvGramSchmidt(Q, R, Y):
     return True
