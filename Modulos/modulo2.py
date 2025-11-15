@@ -6,6 +6,7 @@ Created on Wed Nov  5 19:03:28 2025
 """
 import numpy as np
 from modulo5 import traspuestaConNumpy
+from AUXILIARES import multiplicacionMatricialConNumpy
 
 def rota(theta):
     matriz = [[(np.cos(theta)), -(np.sin(theta))],[np.sin(theta), np.cos(theta)]]
@@ -19,28 +20,6 @@ def escala (s):
         matriz[i,i] = valor
     return matriz
 
-#%%
-#funcion que calcula la multiplicacion matricial de A*B 2 matrices dadas en ese orden
-def multiplicacionMatricial (A,B):
-    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
-    if len(A.shape) == 1:
-        A = A.reshape(1, -1)
-    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
-    if len(B.shape) == 1:
-       B = B.reshape(-1, 1)
-    if (A.shape[1] != B.shape[0]):
-        return "No se puede calcular, dimensión incompatible"
-    res=np.zeros((A.shape[0],B.shape[1]))
-    #itero en las filas de A
-    for l in range(0,A.shape[0]):
-        #itero en las columnas de B para una misma fila de A
-        for i in range(0,B.shape[1]):
-            valorli = 0
-            #calculo el valor de la posicion (l,i) multiplicando fila por columna
-            for j in range(0,B.shape[0]):
-                valorli += A[l,j]*B[j,i]
-            res[l,i] = valorli
-    return res
 
 def rota_y_escala (theta,s):
     #Voy a usar que la multiplicacion de matrices es asociativa por lo que puedo calcular ambas matrices con los
@@ -48,7 +27,7 @@ def rota_y_escala (theta,s):
     #por la que lo rota y luego por la que lo escala (ejemplo: A*(B*v) = (A*B)*v)
     B = rota(theta)
     A=escala(s)
-    return multiplicacionMatricial(A,B)
+    return multiplicacionMatricialConNumpy(A,B)
     
 #%%
 #contexto: el vector v que me daran vive en z=1. Sera un vector de R^2 extendido a R^3. Entonces su tercera
@@ -85,7 +64,7 @@ def trans_afin (v,theta,s,b):
     matrizAfin = afin(theta,s,b)
     #vector v extendido a R^3 poniendo un 1 en la tercera posicion
     vExtendido = extenderVectorColumna(v,1)
-    resExtendida = multiplicacionMatricial(matrizAfin, vExtendido)
+    resExtendida = multiplicacionMatricialConNumpy(matrizAfin, vExtendido)
     #elimino el ultimo valor de resExtendida
     res = resExtendida[0:resExtendida.shape[0]-1]
     #si me pasaron v como vector fila devuelvo res como tal
