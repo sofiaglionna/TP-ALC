@@ -155,7 +155,7 @@ def multiplicacionMatricialConNumpy (A,B):
     return res
 
 
-def producto_interno(v, w):
+def producto_interno(v, w):  # Solo vector x vector
     res = 0
     for i in range(0, len(v), 1):
         res += (v[i] * w[i])
