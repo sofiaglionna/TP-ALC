@@ -83,7 +83,7 @@ def condMC(A,p):
     norma_A_inv = normaMatMC(np.linalg.inversa(A),p,p,10000)
     return norma_A * norma_A_inv
 
-def condExacto(A,p):
+def condExacta(A,p):
     #Devuelve el numero de condicion de A a partir de la formula de la ecuacion cond(A) = ||A|| . ||inversa(A)|| usando la norma p.
     if p == 1 or p == "inf":
         inversa_A = inversa(A)
