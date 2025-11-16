@@ -1,4 +1,5 @@
 import numpy as np
+from modulo7 import esCuadrada,f_A,f_a_kveces
 
 #Funciones Auxiliares
 
