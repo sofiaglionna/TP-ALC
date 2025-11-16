@@ -24,6 +24,7 @@ import numpy as np
 #) extraer_sup(A)
 
 #======================================
+
 def esSimetricaConTol (A, atol=1e-10):
     n = A.shape[0]
     for i in range(n):
@@ -32,6 +33,7 @@ def esSimetricaConTol (A, atol=1e-10):
             # Esto se hace comparando el valor absoluto de la diferencia con atol.
             if abs(A[i, j] - A[j, i]) > atol:
                 return False # No es simétrica
+    return True
 
 def traspuestaConNumpy (A):   
     res = []
