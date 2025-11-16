@@ -100,7 +100,7 @@ def traspuesta(A):
   return resultado
 
 #le aplica el absoluto a todos los elementos de una lista
-def abs(x):
+def absolutoLista(x):
   result = []
   for elem in x:
     if elem >= 0:
@@ -154,8 +154,30 @@ def multiplicacionMatricialConNumpy (A,B):
             res[l,i] = valorli
     return res
 
+def multiplicacion_de_matrices_sin_numpy(A,B):
+    n = A.shape[0] # filas de A
+    m = A.shape[1] # columnas de A
+    r = B.shape[0] # filas de B
+    s = B.shape[1] # columnas de B
 
-def producto_interno(v, w):  # Solo vector x vector
+    if m == n:
+        res = np.zeros((n, s))
+
+        for i in range(0, n ,1):
+            for j in range(0, s, 1):
+                sumatoria = 0
+                t = 0
+                while t < m:
+                    sumatoria += A[i, t] * B[t, j]
+                    t += 1
+                res[i,j] = sumatoria
+        return res
+
+    else:
+        raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
+
+
+def producto_interno(v, w): # Solo vector x vector
     res = 0
     for i in range(0, len(v), 1):
         res += (v[i] * w[i])
