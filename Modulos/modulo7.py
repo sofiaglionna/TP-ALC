@@ -166,7 +166,7 @@ def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
 
     for j in range(0, len(valores), 1):
         if valores[j] == 0:
-            None
+            pass
         else:
             A_dict_res[(filas[j],columnas[j])] = valores[j]
 
