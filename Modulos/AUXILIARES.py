@@ -21,6 +21,8 @@ import numpy as np
 
 #) inversa(A)
 
+#) extraer_sup(A)
+
 #======================================
 
 def traspuestaConNumpy (A):   
@@ -174,3 +176,12 @@ def inversa(A):
             A_inv[i, j] = A_ext[i, j + n]
 
     return A_inv
+
+def extraer_sup(A):
+  n = A.shape[1]
+  Ac = A.copy()
+
+  for k in range(1,n):
+    for i in range(k):
+      Ac[k,i] = 0
+  return Ac
