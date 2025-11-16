@@ -23,7 +23,15 @@ import numpy as np
 #) inversa(A)
 
 #======================================
-
+def esSimetricaConTol (A, atol=1e-10):
+    n = A.shape[0]
+    for i in range(n):
+        for j in range(i + 1, n):
+            # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
+            # Esto se hace comparando el valor absoluto de la diferencia con atol.
+            if abs(A[i, j] - A[j, i]) > atol:
+                return False # No es simétrica
+            
 def traspuestaConNumpy (A):   
     res = []
     #si es un vector
