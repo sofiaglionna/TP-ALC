@@ -11,6 +11,12 @@ import numpy as np
 
 # Funciones auxiliares en este archivo:
 
+#) esCuadrada(A)
+
+#) esSimetricaConTol(A, atol=1e-10)
+
+#) esSimetrica(A)
+
 #) traspuesta(A)
 
 #) abs(x)
@@ -25,6 +31,13 @@ import numpy as np
 
 #======================================
 
+def esCuadrada(A):
+    if A.shape[0] == A.shape[1]:
+        return True
+    else:
+        return False
+
+
 def esSimetricaConTol (A, atol=1e-10):
     n = A.shape[0]
     for i in range(n):
@@ -35,7 +48,19 @@ def esSimetricaConTol (A, atol=1e-10):
                 return False # No es simétrica
     return True
 
-def traspuestaConNumpy (A):   
+
+def esSimetrica(A):
+    trasp = traspuesta(A)
+    if esCuadrada(A):
+        if np.array_equal(A, trasp) == True:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def traspuestaConNumpy(A):   
     res = []
     #si es un vector
     if len(A.shape) == 1:
@@ -50,6 +75,7 @@ def traspuestaConNumpy (A):
             columna.append(A[j][i])
         res.append(columna)
     return np.array(res)
+
 
 #traspuesta de una matriz (devuelve una lista de listas, no una matriz)
 def traspuesta(A):
