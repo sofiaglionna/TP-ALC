@@ -1,6 +1,6 @@
 import numpy as np
-from modulo7 import esCuadrada,f_A,f_a_kveces
-
+from modulo7 import esCuadrada,f_A,f_A_kveces
+from AUXILIARES import traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
 #Funciones Auxiliares
 
 def producto_interno(v, w):
@@ -86,7 +86,7 @@ def diagRH(A,tol=1e-15,K=1000):
 
     return S, D
 
-
+"""
 def multiplicacionMatricial(A, B):
     # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
     if len(A.shape) == 1:
@@ -112,7 +112,7 @@ def multiplicacionMatricial(A, B):
         
     return res
 
-
+"""
 #def multiplicacion_de_matrices_sin_numpy(A,B):
     #n = A.shape[0] # filas de A
     #m = A.shape[1] # columnas de A
