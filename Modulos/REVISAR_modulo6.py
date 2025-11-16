@@ -4,8 +4,26 @@ from AUXILIARES import traspuestaConNumpy as traspuesta, multiplicacionMatricial
 
 # Funciones Auxiliares:
 
+def producto_interno(v, w):
+    res = 0
+    for i in range(0, len(v), 1):
+        res += (v[i] * w[i])
+    return res
+
+
+def producto_externo(v, w):
+    n = len(v)
+    m = len(w)
+    res = np.zeros((n, m))
+    for i in range(0, n, 1):
+        for j in range(0, m, 1):
+            res[i, j] = (v[i] * w[j])
+    return res
+
+
+
 def f_A(A, v):
-    w = np.dot(A,v)  # Multiplico A por v y el vector resultado lo llamo w
+    w = producto_interno(A,v)  # Multiplico A por v y el vector resultado lo llamo w
     w_normalizado = np.linalg.norm(w, 2) # Calculo la norma dos del vector w
     res = w/w_normalizado # Normalizo el vector w
 
@@ -31,23 +49,6 @@ def esSimetrica(A):
             return False
     else:
         return False
-
-
-def producto_interno(v, w):
-    res = 0
-    for i in range(0, len(v), 1):
-        res += (v[i] * w[i])
-    return res
-
-
-def producto_externo(v, w):
-    n = len(v)
-    m = len(w)
-    res = np.zeros((n, m))
-    for i in range(0, n, 1):
-        for j in range(0, m, 1):
-            res[i, j] = (v[i] * w[j])
-    return res
 
 
 
