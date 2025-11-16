@@ -1,6 +1,5 @@
 import numpy as np
-from AUXILIARES import multiplicacionMatricialConNumpy
-from AUXILIARES import extraer_sup
+from AUXILIARES import multiplicacionMatricialConNumpy,extraer_sup
 
 
 def calculaLU(A):
