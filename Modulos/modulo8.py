@@ -113,30 +113,6 @@ def multiplicacionMatricial(A, B):
     return res
 
 """
-#def multiplicacion_de_matrices_sin_numpy(A,B):
-    #n = A.shape[0] # filas de A
-    #m = A.shape[1] # columnas de A
-    #r = B.shape[0] # filas de B
-    #s = B.shape[1] # columnas de B
-
-    #if m == n:
-     #   res = np.zeros((n, s))
-
-      #  for i in range(0, n ,1):
-       #     for j in range(0, s, 1):
-        #        sumatoria = 0
-         #       t = 0
-          #      while t < m:
-           #         sumatoria += A[i, t] * B[t, j]
-            #        t += 1
-             #   res[i,j] = sumatoria
-       # return res
-
-    #else:
-     #   raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
-
-
-
 
 
 # Funcion del ejercicio
