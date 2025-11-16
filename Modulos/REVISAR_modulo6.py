@@ -39,7 +39,7 @@ def diagRH(A,tol=1e-15,K=1000):
     if esSimetrica(A) == False:
         return None
         
-    v1, lambda1, _, _ = metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
+    v1, lambda1, _= metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
     
     n = A.shape[0]
     e1 = np.zeros(n)
