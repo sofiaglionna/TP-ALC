@@ -53,6 +53,8 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
         for i in range(j+1,len(ColumnasA)):
             # len(qj) multiplicaciones y sumas -> 2*len(qj) operaciones
             rji = multiplicacionMatricialConNumpy(qj,np.array(ColumnasA[i]))
+            if rji.shape[0] == 1:
+                rji = rji[0]
             R[j,i] = rji
             # len(qj) multiplicaciones y restas -> 2*len(qj) operaciones
             ColumnasA[i] = ColumnasA[i] - rji*qj
@@ -117,10 +119,14 @@ def QR_con_HH (A,tol=1e-12):
             u = u/norma2(u)
             R_sub = R[k:filas, 0:columnas]
             UporR = multiplicacionMatricialConNumpy(u, R_sub)
+            if UporR.shape[0] == 1:
+                UporR = UporR[0]
             #UporR siempre es un vector ya que u lo es y es un producto matricial
             R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
             Q_sub = Q[0:filas, k:filas]
             Qu = multiplicacionMatricialConNumpy(Q_sub, u)
+            if Qu.shape[0] == 1:
+                Qu = Qu[0]
             #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
             Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
     return Q,R

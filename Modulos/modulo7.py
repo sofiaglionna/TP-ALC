@@ -264,7 +264,7 @@ def multiplica_rala_vector(A, v):
     return w
 
 
-A = crea_rala(listado, 6, 4)  # ---> [{(0, 1): 10, (2, 3): 4, (5, 0): 7}, (6, 4)]   --->  np.array([0, 10, 0, 0],   # fila 0
+#A = crea_rala(listado, 6, 4)  # ---> [{(0, 1): 10, (2, 3): 4, (5, 0): 7}, (6, 4)]   --->  np.array([0, 10, 0, 0],   # fila 0
                               #                                                                    [0, 0, 0, 0],    # fila 1
                               #                                                                    [0, 0, 0, 4],    # fila 2
                               #                                                                    [0, 0, 0, 0],    # fila 3

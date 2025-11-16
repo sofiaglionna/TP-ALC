@@ -108,11 +108,7 @@ def multiplicacionMatricialConNumpy (A,B):
                 #la fila j de BT es la columna j de B
                 valorli += filaA[j] * filaBT[j]
             res[l,i] = valorli
-    #si el resultado no es una matriz sino un vector o valor devuelvo solo esa "fila" (primer elemento de la lista)
-    if res.shape[0] == 1:
-        return res[0]
-    else:
-        return res
+    return res
 
     
 def multiplicacion_de_matrices_sin_numpy(A,B):
