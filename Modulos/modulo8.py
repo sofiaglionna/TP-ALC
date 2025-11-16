@@ -50,7 +50,7 @@ def metpot2k(A, tol=1e-15, K=1000):
     landa = np.dot((v_barra.T), Av)  # el autovalor
     epsilon = abs(e - 1)  # el error
 
-    return v_barra, landa, k
+    return v_barra, landa, k,epsilon
 
 
 
@@ -148,7 +148,7 @@ def svd_reducida(A, k="max", tol=1e-15):
     if n >= m: # Filas >= Columnas
         B = multiplicacionMatricial(A.T, A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatV_aux, D_aux = diagRH(B, tol, k)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatV_aux, D_aux = diagRH(B, tol)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
         autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
         hatV = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
@@ -171,6 +171,8 @@ def svd_reducida(A, k="max", tol=1e-15):
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatU
             Av = multiplicacionMatricial(A, hatV[:, t])  # A * v_k
+            if len(Av.shape) == 2 and Av.shape[1] == 1:
+                Av = Av[:, 0]
             hatU[:, t] = Av / valores_singulares[t]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
                                                      # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
         
@@ -185,7 +187,7 @@ def svd_reducida(A, k="max", tol=1e-15):
     else: # Filas < Columnas
         B = multiplicacionMatricial(A, A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatU_aux, D_aux = diagRH(B, tol, k)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatU_aux, D_aux = diagRH(B, tol)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
         autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
         hatU = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
@@ -208,6 +210,8 @@ def svd_reducida(A, k="max", tol=1e-15):
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatV
             A_tras_u = multiplicacionMatricial(A.T, hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
+            if len(A_tras_u.shape) == 2 and A_tras_u.shape[1] == 1:
+                A_tras_u = A_tras_u[:, 0]
             hatV[:, t] = A_tras_u / valores_singulares[t]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
                                                            # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
