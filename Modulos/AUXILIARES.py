@@ -23,7 +23,11 @@ import numpy as np
 
 #) transformar(A,x)
 
-#) multiplicacionMatricial (A,B)
+#) multiplicacionMatricial(A,B)
+
+#) producto_interno(v, w)
+
+#) producto_externo(v, w)
 
 #) inversa(A)
 
@@ -145,6 +149,23 @@ def multiplicacionMatricialConNumpy (A,B):
                 #la fila j de BT es la columna j de B
                 valorli += filaA[j] * filaBT[j]
             res[l,i] = valorli
+    return res
+
+
+def producto_interno(v, w):
+    res = 0
+    for i in range(0, len(v), 1):
+        res += (v[i] * w[i])
+    return res
+
+
+def producto_externo(v, w):
+    n = len(v)
+    m = len(w)
+    res = np.zeros((n, m))
+    for i in range(0, n, 1):
+        for j in range(0, m, 1):
+            res[i, j] = (v[i] * w[j])
     return res
 
     
