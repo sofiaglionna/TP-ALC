@@ -1,34 +1,25 @@
 import numpy as np
-from AUXILIARES import traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
+from AUXILIARES import producto_interno, producto_externo, esSimetrica, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
 
 
 # Funciones Auxiliares:
 
-def producto_interno(v, w):
-    res = 0
-    for i in range(0, len(v), 1):
-        res += (v[i] * w[i])
-    return res
-
-
-def producto_externo(v, w):
-    n = len(v)
-    m = len(w)
-    res = np.zeros((n, m))
-    for i in range(0, n, 1):
-        for j in range(0, m, 1):
-            res[i, j] = (v[i] * w[j])
-    return res
-
-
-
 def f_A(A, v):
-    w = producto_interno(A,v)  # Multiplico A por v y el vector resultado lo llamo w
-    w_normalizado = np.linalg.norm(w, 2) # Calculo la norma dos del vector w
-    res = w/w_normalizado # Normalizo el vector w
+    w = multiplicacionMatricialConNumpy(A, v) # Multiplico A por v y el vector resultado lo llamo w.
+    w = w.flatten() # Aplano el resultado porque antes era una matriz de dimension nx1.
+    
+    sumatoria = 0  # Lo voy a usar para sumar todos los valores del vector w.
+    for i in range(0, len(w), 1):
+        sumatoria += w[i] ** 2
+    norma = np.sqrt(sumatoria)  # Calculo la norma con la sumatoria.
 
-    return res
+    if norma == 0:
+        return np.zeros_like(w)
 
+    for j in range(0, len(w), 1):  # Normalizo el vector w.
+        w[j] = w[j] / norma
+
+    return w
 
 
 def f_A_kveces(A, v, k):
@@ -37,20 +28,6 @@ def f_A_kveces(A, v, k):
         w = f_A(A, w)
     
     return w
-
-
-
-def esSimetrica(A):
-    trasp = traspuesta(A)
-    if esCuadrada(A):
-        if np.array_equal(A, trasp) == True:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
 
 
 # Funciones del Módulo
