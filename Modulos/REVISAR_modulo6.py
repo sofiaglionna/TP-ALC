@@ -1,33 +1,5 @@
 import numpy as np
-from AUXILIARES import producto_interno, producto_externo, esSimetrica, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
-
-
-# Funciones Auxiliares:
-
-def f_A(A, v):
-    w = multiplicacionMatricialConNumpy(A, v) # Multiplico A por v y el vector resultado lo llamo w.
-    w = w.flatten() # Aplano el resultado porque antes era una matriz de dimension nx1.
-    
-    sumatoria = 0  # Lo voy a usar para sumar todos los valores del vector w.
-    for i in range(0, len(w), 1):
-        sumatoria += w[i] ** 2
-    norma = np.sqrt(sumatoria)  # Calculo la norma con la sumatoria.
-
-    if norma == 0:
-        return np.zeros_like(w)
-
-    for j in range(0, len(w), 1):  # Normalizo el vector w.
-        w[j] = w[j] / norma
-
-    return w
-
-
-def f_A_kveces(A, v, k):
-    w = v.copy()
-    for i in range(0,k,1):
-        w = f_A(A, w)
-    
-    return w
+from AUXILIARES import producto_interno, producto_externo, esSimetrica, f_A, f_A_kveces, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
 
 
 # Funciones del Módulo
