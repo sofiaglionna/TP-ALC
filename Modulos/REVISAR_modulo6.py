@@ -72,7 +72,7 @@ def metpot2k(A, tol=1e-15, K=1000):
     landa = np.dot((v_barra.T), Av)  # el autovalor
     epsilon = abs(e - 1)  # el error
 
-    return v_barra, landa, k
+    return v_barra, landa, k,epsilon
 
 
 
