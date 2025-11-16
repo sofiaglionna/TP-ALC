@@ -6,23 +6,31 @@ from AUXILIARES import producto_interno, producto_externo, esSimetrica, f_A, f_A
 
 def metpot2k(A, tol=1e-15, K=1000):
     n = A.shape[0]
-    
-    v = np.random.rand(n)  # genero un autovector
+
+    v = np.random.rand(n)  # Genero un vector.
+
+    sumatoria = 0  # Lo voy a usar para sumar todos los valores del vector w.
+    for i in range(0, len(v), 1):
+        sumatoria += v[i] ** 2
+    norma = np.sqrt(sumatoria)  # Calculo la norma con la sumatoria.
+    for j in range(0, len(v), 1):  # Normalizo el vector v.
+        v[j] = v[j] / norma
+
     v_barra = f_A_kveces(A, v, 2)
-    e = np.dot((v_barra.T), v)  # medidor de parentezco entre v_barra_traspuesta y v
-    k = 0  # cantidad de iteraciones
+    e = producto_interno((v_barra), v)  # Medidor de parentezco entre v_barra y v.
+    k = 0  # Cantidad de iteraciones.
 
     while abs(e - 1) > tol and k < K:
         v = v_barra
         v_barra = f_A(A, v)
-        e = np.dot((v_barra.T), v)
+        e = producto_interno((v_barra), v)
         k += 1
 
-    Av = np.dot(A, v_barra)
-    landa = np.dot((v_barra.T), Av)  # el autovalor
-    epsilon = abs(e - 1)  # el error
+    Av = multiplicacionMatricial(A, v_barra)
+    landa = producto_interno((v_barra), Av)[0]  # El autovalor.
+    epsilon = abs(e - 1)  # El error
 
-    return v_barra, landa, k,epsilon
+    return v_barra, landa, k
 
 
 
