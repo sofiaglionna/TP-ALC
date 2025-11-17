@@ -1,6 +1,6 @@
 import numpy as np
 from AUXILIARES import producto_interno, producto_externo, esSimetrica, f_A, f_A_kveces, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
-
+from REVISAR_modulo6 import diagRH
 # Funciones Auxiliares
 
 
@@ -96,31 +96,32 @@ def transiciones_al_azar_continuas(n):
     return A
 
 
-def transicion_al_azar_uniforme(n,thres):
-    A = np.random.rand(n,n)  # crea una matriz A de n x n con elementos reales entre 0 y 1
-
+def transiciones_al_azar_uniformes(n,thres):
+    A = np.random.rand(n,n)  # crea una matriz A de n x n con elementos reales entre 0 y 1)
     for i in range(0,n,1):  # fijación de los elems de A dependiendo de la condicion
         for j in range(0,n,1):
             if A[j][i] < thres:
                 A[j][i] = 1
             else:
                 A[j][i] = 0
-
     for i in range(0,n,1):
         suma_columnas = 0
         for j in range(0,n,1):  # suma los elementos de la columna i, con j cambiando las filas
             suma_columnas += A[j][i]
-        for m in range(0,n,1):  # para cada elemento de la columna i, lo divide con el valor de la suma de los elems de la misma columna
-            A[m][i] = A[m][i] / suma_columnas
+        #para tests: si no hay unos devuelvo 1 dividido la cantidad de elementos de la columna (parece ser lo que se espera en los test). Preguntar
+        if suma_columnas == 0:
+            A[:,i] = 1/n
+        else:
+            A[:,i] = (A[:, i]/suma_columnas)
 
     return A
 
-
+##############################################################################################################
 ######## HAY QUE CONTEMPLAR EL CASO DE SI "SUMA_COLUMNAS" == 0 ??? (osea una columna con todos ceros) ########
+##############################################################################################################
 
 
-
-def nucleo(A,tol):
+def nucleo(A,tol=1e-15):
     # Primero calculamos A^t por A y lo llamamos B
     B = multiplicacionMatricial(A.T,A)
 
@@ -148,12 +149,13 @@ def nucleo(A,tol):
     else:
         # Devuelvo los vectores como columnas
         return np.array(v_nucleo).T
-            
-    ## SEGUN EL CHAT ESTA BIEN CODEADO ##
-
 
 
 def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
+    #si me pasan listado vacio devuelvo diccionario vacio y m_filas y n_columnas
+    if listado == []:
+        return {}, (m_filas, n_columnas)
+    
     filas = listado[0]
     columnas = listado[1]
     valores = listado[2]
@@ -169,14 +171,8 @@ def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
             pass
         else:
             A_dict_res[(filas[j],columnas[j])] = valores[j]
-
-    res = [A_dict_res, (m_filas, n_columnas)]
-
-    return res
-
-
-    ## SEGUN EL CHAT ESTA BIEN CODEADO ##
-
+            
+    return A_dict_res, (m_filas, n_columnas)
 
 
 def multiplica_rala_vector(A, v):
@@ -202,5 +198,5 @@ def multiplica_rala_vector(A, v):
                               #                                                                    [0, 0, 0, 0],    # fila 4
                               #                                                                    [7, 0, 0, 0])    # fila 5
  
-v = np.array([1,2,3,4])
+#v = np.array([1,2,3,4])
 #  print(multiplica_rala_vector(A, v))  ------>  [20.  0. 16.  0.  0.  7.]
