@@ -44,14 +44,21 @@ def esCuadrada(A):
     else:
         return False
 
-
-def esSimetricaConTol (A, atol=1e-10):
+def esSimetricaConTol (A, tol=1e-10):
+    if len(A.shape) == 1:
+        if A.shape[0] == 1:
+            return True
+        else:
+            return False
     n = A.shape[0]
+    m = A.shape[1]
+    if n!=m:
+        return False
     for i in range(n):
         for j in range(i + 1, n):
             # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
             # Esto se hace comparando el valor absoluto de la diferencia con atol.
-            if abs(A[i, j] - A[j, i]) > atol:
+            if abs(A[i, j] - A[j, i]) > tol:
                 return False # No es simétrica
     return True
 

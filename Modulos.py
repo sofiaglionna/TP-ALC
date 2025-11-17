@@ -12,6 +12,8 @@ import numpy as np
 
 # Funciones auxiliares en este archivo:
 
+#) esSimetricaConTol(A, tol=1e-10):
+
 #) traspuesta(A)
 
 #) abs(x)
@@ -24,16 +26,24 @@ import numpy as np
 
 #======================================
 
-def esSimetricaConTol (A, atol=1e-10):
+def esSimetricaConTol (A, tol=1e-10):
+    if len(A.shape) == 1:
+        if A.shape[0] == 1:
+            return True
+        else:
+            return False
     n = A.shape[0]
+    m = A.shape[1]
+    if n!=m:
+        return False
     for i in range(n):
         for j in range(i + 1, n):
             # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
             # Esto se hace comparando el valor absoluto de la diferencia con atol.
-            if abs(A[i, j] - A[j, i]) > atol:
+            if abs(A[i, j] - A[j, i]) > tol:
                 return False # No es simétrica
     return True
-            
+
 def traspuestaConNumpy (A):   
     res = []
     #si es un vector
@@ -656,6 +666,46 @@ def calculaCholesky(A, atol=1e-10):
     R = multiplicacionMatricialConNumpy(L, D_sqrt)
 
     return R
+
+# Caso triangular inferior
+def sustitucionHaciaAdelante(L, X):
+    # L es triangular inferior
+    # X es la matriz del lado derecho
+    # resuelve el sistema LZ = X
+    
+    n, p = X.shape
+    
+    # Inicializamos la matriz solución Z (misma dimension que X)
+    Z = np.zeros((n,p))
+
+    for k in range(p):
+        # L * z_k = x_k
+        z_k = res_tri(L, X[:, k], inferior=True)
+        
+        Z[:, k] = z_k
+        
+    return Z
+
+# Caso traingular superior
+def sustitucionHaciaAtras(LT, Z):
+    # LT es triangular superior
+    # Z es la matriz del lado derecho
+    # resuelve LT*V=Z
+    
+    n, p = Z.shape
+    
+    # Inicializamos la matriz solución V (misma dimension que Z)
+    V = np.zeros((n,p))
+
+    # Iteramos sobre las columnas de Z (cada vector z_k)
+    for k in range(p):
+        #  L^T * v_k = z_k 
+        # Se pasa inferior=False porque LT es triangular superior
+        v_k = res_tri(LT, Z[:, k], inferior=False)
+        V[:, k] = v_k
+        
+    return V
+
 
 ##########################################
 #%% MÓDULO 5
