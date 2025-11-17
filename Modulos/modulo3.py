@@ -79,6 +79,10 @@ def normaExacta(A, p=[1,'inf']):
             if suma > max_norminf:
                 max_norminf = suma
         res.append(max_norminf)
+    #si me pasan solo 1 o inf devuelvo solo su norma, no la lista
+    if len(res) == 1:
+        return res[0]
+    #si me pasan una norma que no sea 1 o inf devuelvo None
     if len(res) == 0:
         return None
     return res
@@ -92,14 +96,15 @@ def condMC(A,p):
 
 def condExacta(A,p):
     #Devuelve el numero de condicion de A a partir de la formula de la ecuacion cond(A) = ||A|| . ||inversa(A)|| usando la norma p.
+    #me piden norma 1 (sin el type se rompe por hacer str = int. Por eso aparece en varios lados)
     if type(p) == int and p == 1:
         inversa_A = inversa(A)
-        condA = normaExacta(A,p)[0]*normaExacta(inversa_A,p)[0]
+        condA = normaExacta(A,p)*normaExacta(inversa_A,p)
         return condA
+    #me piden norma infinito
     if type(p) == str and p == "inf":
         inversa_A = inversa(A)
-        #tomo el 0 porque como le pase p="inf" res va a tener solo la norma inf en la primera posicion
-        condA = normaExacta(A,p)[0]*normaExacta(inversa_A,p)[0]
+        condA = normaExacta(A,p)*normaExacta(inversa_A,p)
         return condA
     norma_A = normaMatMC(A,p,p,10000)
     norma_A_inv = normaMatMC(inversa(A),p,p,10000)
