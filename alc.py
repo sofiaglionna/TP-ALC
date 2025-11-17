@@ -174,13 +174,7 @@ XtTraspuesta = traspuesta(Xt)
 QyRHH = calculaQR(XtTraspuesta, "RH")
 QHH = QyRHH[0]
 RHH = QyRHH[1]
-#Q.shape = 2000x2000
-#R.shape = 2000x1536
 
-#me quedo con las filas y columnas utiles de QR
-filas, columnas = XtTraspuesta.shape
-QHH = QHH[0:filas,0:columnas]
-RHH = RHH[0:columnas,0:columnas]
 
 def pinvHouseHolder(Q, R, Y):
     #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
@@ -200,14 +194,15 @@ descomposición QR utilizando GramSmidth, y Y la matriz de targets de
 entrenamiento. La función devuelve W.
 """
 
+############################################################
+#Esto no funciona, gram schmidt toma matrices cuadradas (lo pide asi el modulo) que hacemos?
+############################################################
+filas, columnas = XtTraspuesta.shape
 QyRGS = calculaQR(XtTraspuesta, "GS")
 QGS = QyRGS[0]
 RGS = QyRGS[1]
-#Q.shape = 2000x2000
-#R.shape = 2000x1536
 
-#me quedo con las filas y columnas utiles de QR
-
+#me quedo con las filas y columnas utiles de QR (luego de ver que hacemos con casos no cuadrados podemos hacer que esto se haga directo en el algoritmo)
 QGS = QGS[0:filas,0:columnas]
 RGS = RGS[0:columnas,0:columnas]
 ###########################################
