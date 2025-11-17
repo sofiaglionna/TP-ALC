@@ -62,7 +62,7 @@ def metpot2k(A, tol=1e-15, K=1000):
 
 
 def diagRH(A,tol=1e-15,K=1000):
-    if esSimetrica(A) == False:
+    if esSimetricaConTol(A) == False:
         return None
         
     v1, lambda1, _, _ = metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
