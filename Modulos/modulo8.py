@@ -1,6 +1,5 @@
 import numpy as np
-from modulo7 import esCuadrada,f_A,f_A_kveces
-from AUXILIARES import traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
+from AUXILIARES import traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial,esCuadrada,f_A,f_A_kveces
 #Funciones Auxiliares
 
 def producto_interno(v, w):
