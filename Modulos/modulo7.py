@@ -1,52 +1,11 @@
 import numpy as np
+from AUXILIARES import producto_interno, producto_externo, esSimetrica, f_A, f_A_kveces, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
+
+# Funciones Auxiliares
 
 
-# Funciones Auxiliares:
-
-def producto_interno(v, w):
-    res = 0
-    for i in range(0, len(v), 1):
-        res += (v[i] * w[i])
-    return res
-
-
-def producto_externo(v, w):
-    n = len(v)
-    m = len(w)
-    res = np.zeros((n, m))
-    for i in range(0, n, 1):
-        for j in range(0, m, 1):
-            res[i, j] = (v[i] * w[j])
-    return res
-
-
-
-def traspuesta(A):
-    return A.T
-
-
-
-def esCuadrada(A):
-    if A.shape[0] == A.shape[1]:
-        return True
-    else:
-        return False
-
-
-
-def esSimetrica(A):
-    trasp = traspuesta(A)
-    if esCuadrada(A):
-        if np.array_equal(A, trasp) == True:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-
-def f_A(A, v):
+# Funciones de f_A, f_A_kveces, metpot2k y diagRH viejas
+"""def f_A(A, v):
     w = np.dot(A,v)  # Multiplico A por v y el vector resultado lo llamo w
     w_normalizado = np.linalg.norm(w, 2) # Calculo la norma dos del vector w
     res = w/w_normalizado # Normalizo el vector w
@@ -117,35 +76,7 @@ def diagRH(A,tol=1e-15,K=1000):
         S = multiplicacionMatricial(Hv1, auxiliar)   # Hv1 @ auxiliar
 
     return S, D
-
-
-def multiplicacionMatricial(A, B):
-    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
-    if len(A.shape) == 1:
-        A = A.reshape(1, -1)
-    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
-    if len(B.shape) == 1:
-       B = B.reshape(-1, 1)
-    if (A.shape[1] != B.shape[0]):
-        raise ValueError("Dimensiones incompatibles para la multiplicación.")
-    res=np.zeros((A.shape[0],B.shape[1]))
-    #itero en las filas de A
-    for l in range(0,A.shape[0]):
-        #itero en las columnas de B para una misma fila de A
-        for i in range(0,B.shape[1]):
-            valorli = 0
-            #calculo el valor de la posicion (l,i) multiplicando fila por columna
-            for j in range(0,B.shape[0]):
-                valorli += A[l,j]*B[j,i]
-            res[l,i] = valorli
-
-    if res.shape[1] == 1:
-        res = res.flatten()  # flatten() aplana un arreglo 2D o multidimensional en un vector 1D. Lo agrego para que pase el test del Labo08  "test_svd_reducida_mn(A, tol=1e-15)".
-        
-    return res
-
-
-
+"""
 
 
 
@@ -235,7 +166,7 @@ def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
 
     for j in range(0, len(valores), 1):
         if valores[j] == 0:
-            None
+            pass
         else:
             A_dict_res[(filas[j],columnas[j])] = valores[j]
 
