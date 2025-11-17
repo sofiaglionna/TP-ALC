@@ -148,7 +148,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         for j in range(0, len(autovalores_aux), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
             valores_singulares.append(np.sqrt(autovalores_aux[j]))
 
-        hatSig = np.diag(valores_singulares)  # Armo la matriz Sigma con los valores singulares en su diagonal.
+        hatSig = np.array(valores_singulares)  # Armo el VECTOR Sigma con los valores singulares.
         
         hatU = np.zeros((n, len(valores_singulares)))  # Creamos la matriz hatU con una matriz de ceros de dimension n (cant. filas de A) x cant. valores singulares)
 
@@ -162,7 +162,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         if k != "max":  # Para el test "tamaños de las reducidad", recortamos los tamaños de las matrices en base al valor de k.
             hatU = hatU[:, :k]
             hatV = hatV[:, :k]
-            hatSig = hatSig[:k, :k]
+            hatSig = hatSig[:k]
             
         return hatU, hatSig, hatV
 
@@ -187,7 +187,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         for j in range(0, len(autovalores_aux), 1):  # Calcula raiz de los autovalores y los guarda en la lista "valores_singulares".
             valores_singulares.append(np.sqrt(autovalores_aux[j]))
 
-        hatSig = np.diag(valores_singulares)  # Armo la matriz Sigma con los valores singulares en su diagonal.
+        hatSig = np.array(valores_singulares)  # Armo el VECTOR Sigma con los valores singulares.
         
         hatV = np.zeros((m, len(valores_singulares)))  # Creamos la matriz hatV con una matriz de ceros de dimension m (cant. columnas de A) x cant. valores singulares)
 
@@ -201,7 +201,7 @@ def svd_reducida(A, k="max", tol=1e-15):
         if k != "max":  # Para el test "tamaños de las reducidad", recortamos los tamaños de las matrices en base al valor de k.
             hatU = hatU[:, :k]
             hatV = hatV[:, :k]
-            hatSig = hatSig[:k, :k]
+            hatSig = hatSig[:k]
             
         return hatU, hatSig, hatV
         
