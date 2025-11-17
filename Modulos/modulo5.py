@@ -111,7 +111,8 @@ def QR_con_HH (A,tol=1e-12):
     #paso a float para evitar errores
     R= R.astype(float)
     Q = np.identity(filas)
-    for k in range(0,columnas):
+    #No calculo todo Q y R sino sus versiones reducidas para optimizar
+    for k in range(0, min(filas, columnas)):
         X = R[k:filas,k].copy()
         a= (signo(X[0]))*(norma2(X))
         u = X - (a*canonico(0,filas-k))
