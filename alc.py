@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from Modulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial, calculaQR, matricesIguales, esSimetricaConTol, calculaCholesky, sustitucionHaciaAdelante, sustitucionHaciaAtras, svd_reducida
+from alcModulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial, calculaQR, matricesIguales, esSimetricaConTol, calculaCholesky, sustitucionHaciaAdelante, sustitucionHaciaAtras, svd_reducida
 
 # ========================================
 #%% 1. LECTURA DE DATOS
@@ -15,53 +15,50 @@ from Modulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMat
 ### Yt = 2 filas x 2000 columnas (1000 gatos y 1000 perros)
 ### Yv = 2 filas x 1000 columnas (500 gatos y 500 perros)
 
-# X_train:
-traincats = np.load("template-alumnos/cats_and_dogs/train/cats/efficientnet_b3_embeddings.npy")
-traindogs = np.load("template-alumnos/cats_and_dogs/train/dogs/efficientnet_b3_embeddings.npy")
-dftraincats = pd.DataFrame(traincats) #Spyder
-dftraindogs = pd.DataFrame(traindogs) #Spyder
-# Juntamos X_train de gatos y perros:
-Xt = np.concatenate((traincats, traindogs), axis=1)
-dfXt = pd.DataFrame(Xt) #Spyder
+def cargarDataset(carpeta): #todavia habria ue hacer que se le tenga que pasar una carpeta como parametro
+    # X_train:
+    traincats = np.load("template-alumnos/cats_and_dogs/train/cats/efficientnet_b3_embeddings.npy")
+    traindogs = np.load("template-alumnos/cats_and_dogs/train/dogs/efficientnet_b3_embeddings.npy")
 
-# X_validation:
-valcats = np.load("template-alumnos/cats_and_dogs/val/cats/efficientnet_b3_embeddings.npy")
-valdogs = np.load("template-alumnos/cats_and_dogs/val/dogs/efficientnet_b3_embeddings.npy")
-dfvalcats = pd.DataFrame(valcats) #Spyder
-dfvaldogs = pd.DataFrame(valdogs) #Spyder
-# Juntamos X_validation de gatos y perros:
-Xv = np.concatenate((valcats, valdogs), axis=1)
-dfXv = pd.DataFrame(Xv) #Spyder
+    # Juntamos X_train de gatos y perros:
+    Xt = np.concatenate((traincats, traindogs), axis=1)
 
-#################################################
-# Creamos Y_train:
-YtCatsFila1 = np.ones((1,1000))
-YtCatsFila2 = np.zeros((1,1000))
-YtCats = np.concatenate((YtCatsFila1, YtCatsFila2), axis=0)
-dfYtCats = pd.DataFrame(YtCats) #Spyder
+    # X_validation:
+    valcats = np.load("template-alumnos/cats_and_dogs/val/cats/efficientnet_b3_embeddings.npy")
+    valdogs = np.load("template-alumnos/cats_and_dogs/val/dogs/efficientnet_b3_embeddings.npy")
 
-YtDogsFila1 = np.zeros((1,1000))
-YtDogsFila2 = np.ones((1,1000))
-YtDogs = np.concatenate((YtDogsFila1, YtDogsFila2), axis=0)
-dfYtDogs = pd.DataFrame(YtDogs) #Spyder
-# Juntamos Y_trainings:
-Yt = np.concatenate((YtCats, YtDogs), axis=1)
-dfYt = pd.DataFrame(Yt) #Spyder
+    # Juntamos X_validation de gatos y perros:
+    Xv = np.concatenate((valcats, valdogs), axis=1)
 
-# Creamos Y_validation:
-YvCatsFila1 = np.ones((1,500))
-YvCatsFila2 = np.zeros((1,500))
-YvCats = np.concatenate((YvCatsFila1, YvCatsFila2), axis=0)
-dfYvCats = pd.DataFrame(YvCats) #Spyder
+    #################################################
+    # Creamos Y_train:
+    YtCatsFila1 = np.ones((1,1000))
+    YtCatsFila2 = np.zeros((1,1000))
+    YtCats = np.concatenate((YtCatsFila1, YtCatsFila2), axis=0)
 
-YvDogsFila1 = np.zeros((1,500))
-YvDogsFila2 = np.ones((1,500))
-YvDogs = np.concatenate((YvDogsFila1, YvDogsFila2), axis=0)
-dfYvDogs = pd.DataFrame(YvDogs) #Spyder
+    YtDogsFila1 = np.zeros((1,1000))
+    YtDogsFila2 = np.ones((1,1000))
+    YtDogs = np.concatenate((YtDogsFila1, YtDogsFila2), axis=0)
 
-# Juntamos Y_validations:
-Yv = np.concatenate((YvCats, YvDogs), axis=1)
-dfYv = pd.DataFrame(Yv) #Spyder
+    # Juntamos Y_trainings:
+    Yt = np.concatenate((YtCats, YtDogs), axis=1)
+    #dfYt = pd.DataFrame(Yt)
+
+    # Creamos Y_validation:
+    YvCatsFila1 = np.ones((1,500))
+    YvCatsFila2 = np.zeros((1,500))
+    YvCats = np.concatenate((YvCatsFila1, YvCatsFila2), axis=0)
+
+
+    YvDogsFila1 = np.zeros((1,500))
+    YvDogsFila2 = np.ones((1,500))
+    YvDogs = np.concatenate((YvDogsFila1, YvDogsFila2), axis=0)
+
+    # Juntamos Y_validations:
+    Yv = np.concatenate((YvCats, YvDogs), axis=1)
+    #dfYv = pd.DataFrame(Yv)
+
+    return Xt, Yt, Xv, Yv
 
 # ========================================
 #%% 2. ECUACIONES NORMALES - Algoritmo 1
@@ -75,11 +72,11 @@ La función se denomina pinvEcuacionesNormales(L, Y).
 X pertenece a (n = 1536 x p = 2000) --->  n < p
 Aplica caso b) Si rango(X) = p, n < p, entonces X+=Xt 
 """
-A = multiplicacionMatricial(Xt, traspuesta(Xt))
+#A = multiplicacionMatricial(Xt, traspuesta(Xt))
 
-L = calculaCholesky(A) #tolerancia 0 funciona?
+#L = calculaCholesky(A) #tolerancia 0 funciona?
 # A = LL^T
-traspuestaX = traspuesta(Xt)
+#traspuestaX = traspuesta(Xt)
 
 def pinVEcuacionesNormales(X, L, Y):
     # L^T Z^T = X
@@ -116,14 +113,15 @@ V : np.array
 Y : np.array
     Matriz de targets (mxp)
 
-- X = U·Σ·Vᵀ es la descomposición SVD
-- X⁺ = V·Σ⁺·Uᵀ es la pseudoinversa
+pseudoinversa de X con SVD:
+- X = U·Σ·Vᵀ
+- X⁺ = V·Σ⁺·Uᵀ 
 - W = Y·X⁺ = Y·V·Σ⁺·Uᵀ
 """
 # X pertenece a (n = 1536 x p = 2000) --->  n < p
 
 # Desc de X
-U, S, Vt = svd_reducida(Xt, k="max")
+#U, S, Vt = svd_reducida(Xt, k="max")
 
 def pinvSVD(U, S, Vt, Y):
     
@@ -151,9 +149,9 @@ def pinvSVD(U, S, Vt, Y):
 
     VxSigma = multiplicacionMatricial(V,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
 
-    VxSigmaxU = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
+    pseudoX = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
 
-    W_SVD = multiplicacionMatricial(Y, VxSigmaxU) # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
+    W_SVD = multiplicacionMatricial(Y, pseudoX) # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
 
     return W_SVD
 
@@ -170,10 +168,10 @@ La función devuelve W.
 """
 
 #Calculamos Q y R de X traspuesta que son las que necesitamos para el algoritmo 3
-XtTraspuesta = traspuesta(Xt)
-QyRHH = calculaQR(XtTraspuesta, "RH")
-QHH = QyRHH[0]
-RHH = QyRHH[1]
+#XtTraspuesta = traspuesta(Xt)
+#QyRHH = calculaQR(XtTraspuesta, "RH")
+#QHH = QyRHH[0]
+#RHH = QyRHH[1]
 
 
 def pinvHouseHolder(Q, R, Y):
@@ -197,6 +195,7 @@ entrenamiento. La función devuelve W.
 ############################################################
 #Esto no funciona, gram schmidt toma matrices cuadradas (lo pide asi el modulo) que hacemos?
 ############################################################
+"""
 filas, columnas = XtTraspuesta.shape
 QyRGS = calculaQR(XtTraspuesta, "GS")
 QGS = QyRGS[0]
@@ -205,6 +204,7 @@ RGS = QyRGS[1]
 #me quedo con las filas y columnas utiles de QR (luego de ver que hacemos con casos no cuadrados podemos hacer que esto se haga directo en el algoritmo)
 QGS = QGS[0:filas,0:columnas]
 RGS = RGS[0:columnas,0:columnas]
+"""
 ###########################################
 #el enunciado dice gram schmidt clasico, nosotros usamos el modificado. Lo cambiamos?
 ##########################################

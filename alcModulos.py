@@ -14,6 +14,8 @@ import numpy as np
 
 #) esSimetricaConTol(A, tol=1e-10):
 
+#) traspuestaConNumpy(A):  
+
 #) traspuesta(A)
 
 #) abs(x)
@@ -44,7 +46,7 @@ def esSimetricaConTol (A, tol=1e-10):
                 return False # No es simétrica
     return True
 
-def traspuestaConNumpy (A):   
+def traspuestaConNumpy(A):   
     res = []
     #si es un vector
     if len(A.shape) == 1:
