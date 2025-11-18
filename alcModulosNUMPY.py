@@ -837,7 +837,7 @@ def metpot2k(A, tol=1e-15, K=100):
         k += 1
 
     Av = (A@ v_barra)
-    landa = producto_interno((v_barra), Av)[0]  # El autovalor.
+    landa = producto_interno((v_barra), Av)  # El autovalor.
     epsilon = abs(e - 1)  # El error
 
     return v_barra, landa, k
@@ -1084,7 +1084,7 @@ def svd_reducida(A, k="max", tol=1e-15):
 
     
     else: # Filas < Columnas
-        B = (A@ traspuestaConNumpy(A))  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
+        B = (A@ A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
         hatU_aux, D_aux = diagRH(B)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
