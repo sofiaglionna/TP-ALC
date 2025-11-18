@@ -130,29 +130,41 @@ def pinvSVD(U, S, Vt, Y):
     Ut = traspuesta(U)
 
     #Pseudoinversa de sigma:
+    #invertimos dimensiones de sigma
+    n = S.shape[0]
+    p = S.shape[1]
+
     diag_S = np.diag(S)
 
-    n = Ut.shape[0] #1536
-    r = S.shape[0] 
-
-    diag_S_inv = np.zeros(r)
+    Sigma_pseudo = np.zeros((p,n))
     tol = 1e-10
-    
-    for i in range(r):
+    #asignamos los valores pseudoinversa de S (mismos que S pero invertidos)
+    for i in range(min(p,n)):
         if abs(diag_S[i]) > tol:
-            diag_S_inv[i] = 1.0 / diag_S[i]
+            Sigma_pseudo[i][i] = 1.0 / diag_S[i]
         else:
-            diag_S_inv[i] = 0.0
-    
-    # Creamos la pseudoinversa de sigma como matriz diagonal
-    Sigma_pseudo = np.diag(diag_S_inv) #pxn
+            Sigma_pseudo[i][i] = 0.0
 
+    #print(Sigma_pseudo.shape)
+    #print(V.shape)
+    #print(Ut.shape)
+
+    
+    #MULTILICACIÓN DE NUMPY
+    VxSigma = V @ Sigma_pseudo # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
+
+    pseudoX = VxSigma @ Ut # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
+
+    W_SVD = Y @ pseudoX # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
+
+    """
+    #MULTIPLICACIÓN SIN NUMPY
     VxSigma = multiplicacionMatricial(V,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
 
     pseudoX = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
 
     W_SVD = multiplicacionMatricial(Y, pseudoX) # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
-
+    """
     return W_SVD
 
 # ========================================
