@@ -27,7 +27,7 @@ def metpot2k(A, tol=1e-15, K=1000):
         k += 1
 
     Av = multiplicacionMatricial(A, v_barra)
-    landa = producto_interno((v_barra), Av)[0]  # El autovalor.
+    landa = producto_interno((v_barra), Av)#[0] comentom  porque da error en el tp, testear  # El autovalor.
     epsilon = abs(e - 1)  # El error
 
     return v_barra, landa, k
@@ -36,7 +36,7 @@ def metpot2k(A, tol=1e-15, K=1000):
 
 
 def diagRH(A, tol=1e-15, K=1000):
-         if esSimetricaConTol(A, tol) == False:
+         if esSimetricaConTol(A) == False:
              return None
 
          v1, lambda1, _ = metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor

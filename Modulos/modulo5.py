@@ -22,45 +22,17 @@ def norma2(a):
     return norma(a,2)
 
 def QR_con_GS (A,tol=1e-12, retornanops=False):
-    #si no es cuadrada devuelve None
-    if len(A.shape) == 1:
-        if A.shape[0] != 1:
-            return None 
-    if A.shape[0] != A.shape[1]:
-        return None
-    ColumnasA = columnas(A)
-    #Hago el algoritmo QR
-    N_ops = 0
-    Q = np.zeros((len(ColumnasA),len(ColumnasA)))
-    R = np.zeros((len(ColumnasA),len(ColumnasA)))
-    for j in range(0,len(ColumnasA)):
-        a=ColumnasA[j]
-        #len(a) multiplicaciones, len(a)-1 sumas y una raiz cuadrada
-        N_ops += 2*len(a)
-        rjj = norma2(a)
-        #paso a a vector
-        a = np.array(a)
-        #si rjj es practicamente 0 (menor a tol) le asigno 0
-        if rjj < tol:
-            R[j,j] = 0.0
-            Q[0:len(ColumnasA), j] = 0.0
-        else:
-            R[j, j] = rjj
-            #len(a) divisiones 
-            qj = a / rjj
-            N_ops += len(a)
-            Q[0:len(ColumnasA), j] = qj
-        for i in range(j+1,len(ColumnasA)):
-            # len(qj) multiplicaciones y sumas -> 2*len(qj) operaciones
-            rji = multiplicacionMatricialConNumpy(qj,np.array(ColumnasA[i]))
-            if rji.shape[0] == 1:
-                rji = rji[0]
-            R[j,i] = rji
-            # len(qj) multiplicaciones y restas -> 2*len(qj) operaciones
-            ColumnasA[i] = ColumnasA[i] - rji*qj
-            #cuento operaciones
-            N_ops += 2*len(qj)
-            N_ops += 2*len(qj)
+    filasA,columnasA = A.shape
+    Q=np.zeros(A.shape)
+    R=np.zeros(A.shape)
+    Atraspuesta = traspuestaConNumpy(A)
+    norma2DeTransA = norma2(Atraspuesta[0])
+    Q[:,0]=Atraspuesta[0]/norma2DeTransA
+    R[0,0] = norma2DeTransA
+    for j in range (1,columnasA):
+        Qj = Atraspuesta[j]
+        for k in range (0,j-1):
+            R[k,j] = multiplicacionMatricialConNumpy(traspuestaConNumpy(Q[:,k]),Qj)
     #print para visualizar
     #print("Matriz Q:")
     #for fila in Q:
