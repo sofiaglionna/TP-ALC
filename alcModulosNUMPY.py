@@ -11,6 +11,36 @@ def esCuadrada(A):
     else:
         return False
 
+def esSimetricaConTol (A, tol=1e-10):
+    if len(A.shape) == 1:
+        if A.shape[0] == 1:
+            return True
+        else:
+            return False
+    n = A.shape[0]
+    m = A.shape[1]
+    if n!=m:
+        return False
+    for i in range(n):
+        for j in range(i + 1, n):
+            # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
+            # Esto se hace comparando el valor absoluto de la diferencia con atol.
+            if abs(A[i, j] - A[j, i]) > tol:
+                return False # No es simétrica
+    return True
+
+
+def esSimetrica(A):
+    trasp = traspuesta(A)
+    if esCuadrada(A):
+        if np.array_equal(A, trasp) == True:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def traspuestaConNumpy(A):
     # Caso donde A es un vector (devuelvo fila, asumo que A es una columna)
     if len(A.shape) == 1:
@@ -31,33 +61,6 @@ def traspuestaConNumpy(A):
 
     return np.array(res)
 
-
-def esSimetrica(A):
-    trasp = traspuesta(A)
-    if esCuadrada(A):
-        if np.array_equal(A, trasp) == True:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def traspuestaConNumpy(A):   
-    res = []
-    #si es un vector
-    if len(A.shape) == 1:
-        for i in range(0,A.shape[0]):
-            res.append([A[i]])
-        return np.array(res)
-    
-    filas, columnas = A.shape
-    for i in range(0,columnas):
-        columna = []
-        for j in range(0,filas):
-            columna.append(A[j][i])
-        res.append(columna)
-    return np.array(res)
 
 
 #traspuesta de una matriz (devuelve una lista de listas, no una matriz)
