@@ -1,7 +1,7 @@
 # Test L06-metpot2k, Aval
 
 import numpy as np
-from Modulos.REVISAR_modulo6 import metpot2k,diagRH
+from Modulos.modulo6 import metpot2k,diagRH
 from Modulos.modulo3 import normaExacta
 #### TESTEOS
 # Tests metpot2k
