@@ -6,7 +6,7 @@ Created on Mon Nov 10 12:25:15 2025
 """
 import numpy as np
 from modulo3 import norma
-from AUXILIARES import traspuestaConNumpy,multiplicacionMatricialConNumpy
+from AUXILIARES import traspuestaConNumpy,multiplicacionMatricialConNumpy,traspuestaFilaACol,producto_interno
 
 def columnas (A):
     res = []
@@ -22,17 +22,30 @@ def norma2(a):
     return norma(a,2)
 
 def QR_con_GS (A,tol=1e-12, retornanops=False):
+    N_ops = 0
     filasA,columnasA = A.shape
     Q=np.zeros(A.shape)
     R=np.zeros(A.shape)
     Atraspuesta = traspuestaConNumpy(A)
+    N_ops += 2*filasA + 1  # costo de la norma (filasA multiplicaciones y sumas y una raiz cuadrada al final)
     norma2DeTransA = norma2(Atraspuesta[0])
+    N_ops += filasA  #costo de divisiones
     Q[:,0]=Atraspuesta[0]/norma2DeTransA
     R[0,0] = norma2DeTransA
     for j in range (1,columnasA):
         Qj = Atraspuesta[j]
-        for k in range (0,j-1):
-            R[k,j] = multiplicacionMatricialConNumpy(traspuestaConNumpy(Q[:,k]),Qj)
+        for k in range (0,j):
+            columnaQk = Q[:,k]
+            N_ops += 2*filasA #costo de multiplicacion matricial entre 2 vectores
+            #como ambos son vectores fila hago producto interno
+            rkj = producto_interno(columnaQk,(Qj))
+            R[k,j] = rkj
+            N_ops += 2*filasA #numero filasA de multiplicaciones y restas
+            Qj = Qj - rkj*columnaQk
+        N_ops += 2*filasA + 1  # costo de la norma
+        R[j,j] = norma2(Qj)
+        N_ops += filasA #filasA divisiones
+        Q[:,j] = (Qj/R[j,j])
     #print para visualizar
     #print("Matriz Q:")
     #for fila in Q:
@@ -47,8 +60,9 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
     else:
         return Q,R
 #Ejemplo (da bien)
-#A= np.array([[2,3],[0,4]])
-#print (QRconGS(A, retornanops=True))
+#A = np.array([[1., 2.],[3., 4.]])
+
+#print (QR_con_GS(A, retornanops=True))
 
 #devuelve 1 si k es positivo, -1 si es negativo
 def signo (k):
@@ -103,7 +117,7 @@ def QR_con_HH (A,tol=1e-12):
             #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
             Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
     return Q,R
-
+#print(QR_con_HH(A))
 metodos = ["RH","GS"]
 def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
     if metodo not in metodos:

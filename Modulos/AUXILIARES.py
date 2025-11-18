@@ -73,6 +73,13 @@ def esSimetrica(A):
     else:
         return False
 
+#toma A vector fila y lo transforma en vector columna
+def traspuestaFilaACol(A):   
+    res = []
+    for i in range(0,A.shape[0]):
+        res.append(A[i])
+    return np.array(res)
+
 
 def traspuestaConNumpy(A):   
     res = []

@@ -25,6 +25,7 @@ def check_QR(Q,R,A,tol=1e-10):
 
 # --- TESTS PARA QR_by_GS2 ---
 Q2,R2 = QR_con_GS(A2)
+
 check_QR(Q2,R2,A2)
 
 Q3,R3 = QR_con_GS(A3)
