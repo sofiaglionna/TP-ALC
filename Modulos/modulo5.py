@@ -21,11 +21,12 @@ def columnas (A):
 def norma2(a):
     return norma(a,2)
 
+#funciona para A con #filas>=#columnas
 def QR_con_GS (A,tol=1e-12, retornanops=False):
     N_ops = 0
     filasA,columnasA = A.shape
     Q=np.zeros(A.shape)
-    R=np.zeros(A.shape)
+    R=np.zeros((columnasA,columnasA))
     Atraspuesta = traspuestaConNumpy(A)
     N_ops += 2*filasA + 1  # costo de la norma (filasA multiplicaciones y sumas y una raiz cuadrada al final)
     norma2DeTransA = norma2(Atraspuesta[0])
@@ -44,6 +45,10 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
             Qj = Qj - rkj*columnaQk
         N_ops += 2*filasA + 1  # costo de la norma
         R[j,j] = norma2(Qj)
+        #si rjj es practicamente 0 asigno 0 a la columna qj (a mayor rjj mas independiente es Qj, si es 0 es LD de los anteriores)
+        if R[j,j] < tol:
+            Q[:, j] = 0
+            continue
         N_ops += filasA #filasA divisiones
         Q[:,j] = (Qj/R[j,j])
     #print para visualizar
@@ -63,6 +68,7 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
 #A = np.array([[1., 2.],[3., 4.]])
 
 #print (QR_con_GS(A, retornanops=True))
+
 
 #devuelve 1 si k es positivo, -1 si es negativo
 def signo (k):
