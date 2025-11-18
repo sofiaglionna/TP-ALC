@@ -1,32 +1,15 @@
 import numpy as np
 
-
-#======================================
-# FUNCIONES AUXILIARES utilizadas en los módulos
-#======================================
-
-# Para importar alguna función de acá pongan en su archivo: 
-# from AUXILIARES import nombre_funcion
-
-#======================================
-
-# Funciones auxiliares en este archivo:
-
-#) esSimetricaConTol(A, tol=1e-10):
-
-#) traspuestaConNumpy(A):  
-
-#) traspuesta(A)
-
-#) abs(x)
-
-#) transformar(A,x)
-
-#) multiplicacionMatricial (A,B)
-
-#) inversa(A)
-
-#======================================
+"""
+#####################################################################################
+#AUXILIARES
+#####################################################################################
+"""
+def esCuadrada(A):
+    if A.shape[0] == A.shape[1]:
+        return True
+    else:
+        return False
 
 def esSimetricaConTol (A, tol=1e-10):
     if len(A.shape) == 1:
@@ -46,6 +29,18 @@ def esSimetricaConTol (A, tol=1e-10):
                 return False # No es simétrica
     return True
 
+
+def esSimetrica(A):
+    trasp = traspuesta(A)
+    if esCuadrada(A):
+        if np.array_equal(A, trasp) == True:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def traspuestaConNumpy(A):   
     res = []
     #si es un vector
@@ -61,6 +56,7 @@ def traspuestaConNumpy(A):
             columna.append(A[j][i])
         res.append(columna)
     return np.array(res)
+
 
 #traspuesta de una matriz (devuelve una lista de listas, no una matriz)
 def traspuesta(A):
@@ -78,7 +74,7 @@ def traspuesta(A):
   return resultado
 
 #le aplica el absoluto a todos los elementos de una lista
-def abs(x):
+def absolutoLista(x):
   result = []
   for elem in x:
     if elem >= 0:
@@ -98,62 +94,19 @@ def transformar(A,x):
     vector.append(suma)
   return vector
 
+def producto_interno(v, w):  # Solo vector x vector
+    return sum(v[i] * w[i] for i in range(len(v)))
 
-def multiplicacionMatricialConNumpy (A,B):
-    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
-    if len(A.shape) == 1:
-        A = A.reshape(1, -1)
-    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
-    if len(B.shape) == 1:
-       B = B.reshape(-1, 1)
-    if (A.shape[1] != B.shape[0]):
-        return "No se puede calcular, dimensión incompatible"
-    
-    #traspongo B para optimizar
-    BT = traspuestaConNumpy(B)
-    
-    res=np.zeros((A.shape[0],B.shape[1]))
-    
-    #me guardo ya los shapes para optimizar
-    NfilasA, NcolumnasA = A.shape
-    NfilasBT, NcolumnasBT = BT.shape
-    
-    #itero en las filas de A
-    for l in range(0,NfilasA):
-        filaA = A[l]
-        #itero en las columnas de B para una misma fila de A
-        for i in range(0,NfilasBT):
-            filaBT = BT[i]
-            valorli = 0
-            #calculo el valor de la posicion (l,i) multiplicando fila por columna
-            for j in range(0, NcolumnasA):
-                #la fila j de BT es la columna j de B
-                valorli += filaA[j] * filaBT[j]
-            res[l,i] = valorli
+
+def producto_externo(v, w):
+    n = len(v)
+    m = len(w)
+    res = np.zeros((n, m))
+    for i in range(0, n, 1):
+        for j in range(0, m, 1):
+            res[i, j] = (v[i] * w[j])
     return res
 
-    
-def multiplicacion_de_matrices_sin_numpy(A,B):
-    n = A.shape[0] # filas de A
-    m = A.shape[1] # columnas de A
-    r = B.shape[0] # filas de B
-    s = B.shape[1] # columnas de B
-
-    if m == n:
-        res = np.zeros((n, s))
-
-        for i in range(0, n ,1):
-            for j in range(0, s, 1):
-                sumatoria = 0
-                t = 0
-                while t < m:
-                    sumatoria += A[i, t] * B[t, j]
-                    t += 1
-                res[i,j] = sumatoria
-        return res
-
-    else:
-        raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
     
 def inversa(A):
     n = A.shape[0] #filas de A
@@ -206,18 +159,37 @@ def extraer_sup(A):
     for i in range(k):
       Ac[k,i] = 0
   return Ac
-# ==============================================================================
 
-# ==============================================================================
-#%% ==============================    MODULOS    ===============================
-# ==============================================================================
 
-# ==============================================================================
+def f_A(A, v):
+    w = (A@ v) # Multiplico A por v y el vector resultado lo llamo w.
+    w = w.flatten() # Aplano el resultado porque antes era una matriz de dimension nx1.
+    
+    sumatoria = 0  # Lo voy a usar para sumar todos los valores del vector w.
+    for i in range(0, len(w), 1):
+        sumatoria += w[i] ** 2
+    norma = np.sqrt(sumatoria)  # Calculo la norma con la sumatoria.
 
-##########################################
-#%% MÓDULO 1
-##########################################
+    if norma == 0:
+        return np.zeros_like(w)
 
+    for j in range(0, len(w), 1):  # Normalizo el vector w.
+        w[j] = w[j] / norma
+
+    return w
+
+
+def f_A_kveces(A, v, k):
+    w = v.copy()
+    for i in range(0,k,1):
+        w = f_A(A, w)
+    
+    return w
+"""
+#####################################################################################
+#modulo 1
+#####################################################################################
+"""
 #funcion que devuelve el valor absoluto de un numero
 def absoluto (x):
     if x < 0:
@@ -246,12 +218,11 @@ def matricesIguales(A,B,tol=1e-8):
                 if error(A[i,j], B[i,j]) > tol:
                     return False
     return True
-
-##########################################
-#%% MÓDULO 2
-##########################################
-
-
+"""
+#####################################################################################
+#modulo 2
+#####################################################################################
+"""
 def rota(theta):
     matriz = [[(np.cos(theta)), -(np.sin(theta))],[np.sin(theta), np.cos(theta)]]
     return np.round(np.array(matriz)).astype(int) #convierto a int para que no me de los numeros de maquina
@@ -271,7 +242,7 @@ def rota_y_escala (theta,s):
     #por la que lo rota y luego por la que lo escala (ejemplo: A*(B*v) = (A*B)*v)
     B = rota(theta)
     A=escala(s)
-    return multiplicacionMatricialConNumpy(A,B)
+    return (A@B)
     
 #%%
 #contexto: el vector v que me daran vive en z=1. Sera un vector de R^2 extendido a R^3. Entonces su tercera
@@ -308,17 +279,18 @@ def trans_afin (v,theta,s,b):
     matrizAfin = afin(theta,s,b)
     #vector v extendido a R^3 poniendo un 1 en la tercera posicion
     vExtendido = extenderVectorColumna(v,1)
-    resExtendida = multiplicacionMatricialConNumpy(matrizAfin, vExtendido)
+    resExtendida = (matrizAfin@ vExtendido)
     #elimino el ultimo valor de resExtendida
     res = resExtendida[0:resExtendida.shape[0]-1]
     #si me pasaron v como vector fila devuelvo res como tal
     if len(v.shape) == 1:
         res = traspuestaConNumpy(res)
     return res
-
-##########################################
-#%% MÓDULO 3
-##########################################
+"""
+#####################################################################################
+#modulo 3
+#####################################################################################
+"""
 
 
 def norma(x,p):
@@ -334,10 +306,19 @@ def norma(x,p):
     return res**(1/p)
 
 #normaliza un vector
+def normalizaVector(V,p):
+    normaDeV = norma(V,p)
+    if normaDeV != 0:
+        return (V / normaDeV)
+    else:
+        #si el vector es nulo lo develvo
+        return V
+
+#normaliza una lista de vectores y los devuelve
 def normaliza(X,p):
     res = []
     for x in X:
-        res.append(x/norma(x,p))
+        res.append(normalizaVector(x,p))
     return res
 
 def normaMatMC(A,q,p,Np):
@@ -350,7 +331,7 @@ def normaMatMC(A,q,p,Np):
     for i in range(Np):
         x = np.random.rand(n)
         #normalizo el vector
-        x = normaliza(x,p)
+        x = normalizaVector(x,p)
         # transformo el vector con la matriz
         Ax = transformar(A,x)
         norm_Ax = norma(Ax,q)
@@ -361,47 +342,59 @@ def normaMatMC(A,q,p,Np):
     return [max_norm, vector_maximo]
 
 
-def normaExacta(A,p):
+def normaExacta(A, p=[1,'inf']):
 # Devuelve una lista con las normas 1 e infinito de una matriz A,
 # usando las expresiones del enunciado 2.(c)
     res = []
-    n = len(A)
-    # Caso norma infinito de A, tengo que buscar la maxima suma de los |elementos| por fila
-    if ('inf' in p):
-        max_norminf= 0
-        for i in range(n):
-            suma = 0
-            for j in range(n):
-                suma = suma + abs(A[i][j])
-            if suma > max_norminf:
-                max_norminf = suma
-        res.append(max_norminf)
+    n,m = A.shape
     # Caso norma 1 de A, tengo que buscar la maxima suma de los |elementos| por columna
-    if (1 in p):
-        #transpongo la matriz para poder usar el codigo anterior.
-        matriz = traspuesta(A)
+    if (((type(p) == list) and (1 in p)) or ((type(p) == int) and (p == 1))):
+        #transpongo la matriz para poder usar el codigo de norma infinito.
+        matriz = traspuestaConNumpy(A)
         max_norm1 = 0
-        for i in range(n):
+        for i in range(0,m):
             suma = 0
-            for j in range(n):
+            for j in range(0,n):
                 suma = suma + abs(matriz[i][j])
             if suma > max_norm1:
                 max_norm1 = suma
         res.append(max_norm1)
+    # Caso norma infinito de A, tengo que buscar la maxima suma de los |elementos| por fila
+    if (((type(p) == list) and ('inf' in p)) or ((type(p) == str) and (p == "inf"))):
+        max_norminf= 0
+        for i in range(0,n):
+            suma = 0
+            for j in range(0,m):
+                suma = suma + abs(A[i][j])
+            if suma > max_norminf:
+                max_norminf = suma
+        res.append(max_norminf)
+    #si me pasan solo 1 o inf devuelvo solo su norma, no la lista
+    if len(res) == 1:
+        return res[0]
+    #si me pasan una norma que no sea 1 o inf devuelvo None
+    if len(res) == 0:
+        return None
     return res
 
 def condMC(A,p):
     # Devuelve el numero de condicion de A usando la norma inducida p.
 
-    norma_A = normaMatMC(A,p,p,10000)
-    norma_A_inv = normaMatMC(np.linalg.inversa(A),p,p,10000)
+    norma_A = normaMatMC(A,p,p,10000)[0]
+    norma_A_inv = normaMatMC(inversa(A),p,p,10000)[0]
     return norma_A * norma_A_inv
 
 def condExacta(A,p):
     #Devuelve el numero de condicion de A a partir de la formula de la ecuacion cond(A) = ||A|| . ||inversa(A)|| usando la norma p.
-    if p == 1 or p == "inf":
+    #me piden norma 1 (sin el type se rompe por hacer str = int. Por eso aparece en varios lados)
+    if type(p) == int and p == 1:
         inversa_A = inversa(A)
-        condA = multiplicacion_de_matrices_sin_numpy(normaExacta(A,p), normaExacta(inversa_A,p))
+        condA = normaExacta(A,p)*normaExacta(inversa_A,p)
+        return condA
+    #me piden norma infinito
+    if type(p) == str and p == "inf":
+        inversa_A = inversa(A)
+        condA = normaExacta(A,p)*normaExacta(inversa_A,p)
         return condA
     norma_A = normaMatMC(A,p,p,10000)
     norma_A_inv = normaMatMC(inversa(A),p,p,10000)
@@ -409,11 +402,11 @@ def condExacta(A,p):
     #No entiendo esto, pq si la norma no es sobre 1 o infinito se calcula igual que en la funcion anterior (condMC(A,p))
     #y se supone que en este punto hay que calcularlo de otra manera.
     # cond(A) = ||A|| . ||inversa(A)||
-
-##########################################
-#%% MÓDULO 4
-##########################################
-
+"""
+#####################################################################################
+#modulo 4
+#####################################################################################
+"""
 
 def calculaLU(A):
     cant_op = 0
@@ -572,12 +565,9 @@ def calculaLDV(A):
 
 
     D_inv_diag = np.diag(1 / np.diag(D))
-    V = multiplicacionMatricialConNumpy(D_inv_diag,U)
+    V = (D_inv_diag@U)
 
     return L, D, V
-
-
-import numpy as np
 
 def esSDP(A, atol=1e-10):
     """
@@ -665,53 +655,20 @@ def calculaCholesky(A, atol=1e-10):
 
     # 4. Calcular R = L * D^(1/2)
 
-    R = multiplicacionMatricialConNumpy(L, D_sqrt)
+    R = (L@ D_sqrt)
 
     return R
+"""
+#####################################################################################
+#modulo 5
+#####################################################################################
+"""
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Nov 10 12:25:15 2025
 
-# Caso triangular inferior
-def sustitucionHaciaAdelante(L, X):
-    # L es triangular inferior
-    # X es la matriz del lado derecho
-    # resuelve el sistema LZ = X
-    
-    n, p = X.shape
-    
-    # Inicializamos la matriz solución Z (misma dimension que X)
-    Z = np.zeros((n,p))
-
-    for k in range(p):
-        # L * z_k = x_k
-        z_k = res_tri(L, X[:, k], inferior=True)
-        
-        Z[:, k] = z_k
-        
-    return Z
-
-# Caso traingular superior
-def sustitucionHaciaAtras(LT, Z):
-    # LT es triangular superior
-    # Z es la matriz del lado derecho
-    # resuelve LT*V=Z
-    
-    n, p = Z.shape
-    
-    # Inicializamos la matriz solución V (misma dimension que Z)
-    V = np.zeros((n,p))
-
-    # Iteramos sobre las columnas de Z (cada vector z_k)
-    for k in range(p):
-        #  L^T * v_k = z_k 
-        # Se pasa inferior=False porque LT es triangular superior
-        v_k = res_tri(LT, Z[:, k], inferior=False)
-        V[:, k] = v_k
-        
-    return V
-
-
-##########################################
-#%% MÓDULO 5
-##########################################
+@author: Usuario
+"""
 
 def columnas (A):
     res = []
@@ -721,6 +678,7 @@ def columnas (A):
             columna.append(A[j][i])
         res.append(columna)
     return res
+
 
 def norma2(a):
     return norma(a,2)
@@ -756,7 +714,9 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
             Q[0:len(ColumnasA), j] = qj
         for i in range(j+1,len(ColumnasA)):
             # len(qj) multiplicaciones y sumas -> 2*len(qj) operaciones
-            rji = multiplicacionMatricialConNumpy(qj,np.array(ColumnasA[i]))
+            rji = (qj@np.array(ColumnasA[i]))
+            if rji.shape[0] == 1:
+                rji = rji[0]
             R[j,i] = rji
             # len(qj) multiplicaciones y restas -> 2*len(qj) operaciones
             ColumnasA[i] = ColumnasA[i] - rji*qj
@@ -813,18 +773,23 @@ def QR_con_HH (A,tol=1e-12):
     #paso a float para evitar errores
     R= R.astype(float)
     Q = np.identity(filas)
-    for k in range(0,columnas):
+    #No calculo todo Q y R sino sus versiones reducidas para optimizar
+    for k in range(0, min(filas, columnas)):
         X = R[k:filas,k].copy()
         a= (signo(X[0]))*(norma2(X))
         u = X - (a*canonico(0,filas-k))
         if norma2(u) > tol:
             u = u/norma2(u)
             R_sub = R[k:filas, 0:columnas]
-            UporR = multiplicacionMatricialConNumpy(u, R_sub)
+            UporR = (u@ R_sub)
+            if UporR.shape[0] == 1:
+                UporR = UporR[0]
             #UporR siempre es un vector ya que u lo es y es un producto matricial
             R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
             Q_sub = Q[0:filas, k:filas]
-            Qu = multiplicacionMatricialConNumpy(Q_sub, u)
+            Qu = (Q_sub@ u)
+            if Qu.shape[0] == 1:
+                Qu = Qu[0]
             #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
             Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
     return Q,R
@@ -837,203 +802,21 @@ def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
         return QR_con_GS(A,tol,retornanops)
     elif metodo == "RH":
         return QR_con_HH(A,tol)
-
-##########################################
-#%% MÓDULO 6
-##########################################
-
-##########################################
-#%% MÓDULO 7 - CAMBIAR FUNCIONES POR LAS QUE YA ESTÁN
-##########################################
-
-# Funciones Auxiliares:
-
-def producto_interno(v, w):
-    res = 0
-    for i in range(0, len(v), 1):
-        res += (v[i] * w[i])
-    return res
-
-
-def producto_externo(v, w):
-    n = len(v)
-    m = len(w)
-    res = np.zeros((n, m))
-    for i in range(0, n, 1):
-        for j in range(0, m, 1):
-            res[i, j] = (v[i] * w[j])
-    return res
-
-
-
-def traspuesta(A):
-    return A.T
-
-
-
-def esCuadrada(A):
-    if A.shape[0] == A.shape[1]:
-        return True
-    else:
-        return False
-
-
-
-def esSimetrica(A):
-    trasp = traspuesta(A)
-    if esCuadrada(A):
-        if np.array_equal(A, trasp) == True:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-
-def f_A(A, v):
-    w = np.dot(A,v)  # Multiplico A por v y el vector resultado lo llamo w
-    w_normalizado = np.linalg.norm(w, 2) # Calculo la norma dos del vector w
-    res = w/w_normalizado # Normalizo el vector w
-
-    return res
-
-
-
-def f_A_kveces(A, v, k):
-    w = v.copy()
-    for i in range(0,k,1):
-        w = f_A(A, w)
     
-    return w
+"""
+#####################################################################################
+#modulo 6
+#####################################################################################
+"""
 
+# Funciones del Módulo
 
-
-def metpot2k(A, tol=1e-15, K=1000):
-    n = A.shape[0]
-    
-    v = np.random.rand(n)  # genero un autovector
-    v_barra = f_A_kveces(A, v, 2)
-    e = np.dot((v_barra.T), v)  # medidor de parentezco entre v_barra_traspuesta y v
-    k = 0  # cantidad de iteraciones
-
-    while abs(e - 1) > tol and k < K:
-        v = v_barra
-        v_barra = f_A(A, v)
-        e = np.dot((v_barra.T), v)
-        k += 1
-
-    Av = np.dot(A, v_barra)
-    landa = np.dot((v_barra.T), Av)  # el autovalor
-    epsilon = abs(e - 1)  # el error
-
-    return v_barra, landa, k
-
-
-
-def diagRH(A,tol=1e-15,K=1000):
-    if esSimetrica(A) == False:
-        return None
-        
-    v1, lambda1, _, _ = metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
-    
-    n = A.shape[0]
-    e1 = np.zeros(n)
-    e1[0] = 1  # e1 es el primer vector canonico
-
-    u = e1 - v1
-    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
-
-    if n == 2:
-        S = Hv1
-        D = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
-    else:
-        B = multiplicacionMatricial(multiplicacionMatricial(Hv1,A),Hv1.T)   # Hv1 @ A @ Hv1.T
-        A_moño = B[1:, 1:]
-        S_moño, D_moño = diagRH(A_moño,tol=1e-15,K=1000)
-        
-        D = np.zeros((n, n))
-        D[0, 0] = lambda1
-        D[1:, 1:] = D_moño
-
-        auxiliar = np.zeros((n, n))
-        auxiliar[0, 0] = 1
-        auxiliar[1:, 1:] = S_moño
-        S = multiplicacionMatricial(Hv1, auxiliar)   # Hv1 @ auxiliar
-
-    return S, D
-
-
-def multiplicacionMatricial(A, B):
-    # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
-    if len(A.shape) == 1:
-        A = A.reshape(1, -1)
-    # Lo mismo con B pero este solo puede ser un vector columna por lo que lo convierto a matriz de 1 columna
-    if len(B.shape) == 1:
-       B = B.reshape(-1, 1)
-    if (A.shape[1] != B.shape[0]):
-        raise ValueError("Dimensiones incompatibles para la multiplicación.")
-    res=np.zeros((A.shape[0],B.shape[1]))
-    #itero en las filas de A
-    for l in range(0,A.shape[0]):
-        #itero en las columnas de B para una misma fila de A
-        for i in range(0,B.shape[1]):
-            valorli = 0
-            #calculo el valor de la posicion (l,i) multiplicando fila por columna
-            for j in range(0,B.shape[0]):
-                valorli += A[l,j]*B[j,i]
-            res[l,i] = valorli
-
-    if res.shape[1] == 1:
-        res = res.flatten()  # flatten() aplana un arreglo 2D o multidimensional en un vector 1D. Lo agrego para que pase el test del Labo08  "test_svd_reducida_mn(A, tol=1e-15)".
-        
-    return res
-
-
-##########################################
-#%% MÓDULO 8
-##########################################
-
-
-#Funciones Auxiliares
-
-def producto_interno(v, w):
-    res = 0
-    for i in range(0, len(v), 1):
-        res += (v[i] * w[i])
-    return res
-
-
-def producto_externo(v, w):
-    n = len(v)
-    m = len(w)
-    res = np.zeros((n, m))
-    for i in range(0, n, 1):
-        for j in range(0, m, 1):
-            res[i, j] = (v[i] * w[j])
-    return res
-
-
-def esSimetrica(A):
-    trasp = traspuesta(A)
-    if esCuadrada(A):
-        if np.array_equal(A, trasp) == True:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-
-def metpot2k(A, tol=1e-15, K=1000):
+def metpot2k(A, tol=1e-15, K=100):
     n = A.shape[0]
 
     v = np.random.rand(n)  # Genero un vector.
 
-    sumatoria = 0  # Lo voy a usar para sumar todos los valores del vector w.
-    for i in range(0, len(v), 1):
-        sumatoria += v[i] ** 2
+    sumatoria = sum(v[i]**2 for i in range(len(v)))
     norma = np.sqrt(sumatoria)  # Calculo la norma con la sumatoria.
     for j in range(0, len(v), 1):  # Normalizo el vector v.
         v[j] = v[j] / norma
@@ -1048,49 +831,179 @@ def metpot2k(A, tol=1e-15, K=1000):
         e = producto_interno((v_barra), v)
         k += 1
 
-    Av = (A@v_barra)
+    Av = (A@ v_barra)
     landa = producto_interno((v_barra), Av)[0]  # El autovalor.
     epsilon = abs(e - 1)  # El error
 
     return v_barra, landa, k
 
-def diagRH(A,tol=1e-15,K=1000):
-    if esSimetricaConTol(A, tol) == False:
-        return None
-        
-    v1, lambda1, _= metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
-    
-    n = A.shape[0]
-    e1 = np.zeros(n)
-    e1[0] = 1  # e1 es el primer vector canonico
-    # Cambio sentido (en caso de que e1 y v1 sean muy similares u queda casi 0. si v1 es muy similar a -e1 me quedaria
-    #u muy similar a -2e1) v1 y -v1 son el mismo autovector matematicamente, tomo el v1 positivo para que sea similar
-    #a e1 (correcto con algoritmo de householder, justamente busco esto, que v1 y e1 sean similares)
-    if v1[0] < 0:
-        v1 = -v1
-    u = v1 - e1
-    Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
-    if n == 2:
-        S = Hv1
-        D = (Hv1@A)@(Hv1.T)  # Hv1 @ A @ Hv1.T
+
+
+
+def diagRH(A, tol=1e-15, K=100):
+         if esSimetricaConTol(A, tol) == False:
+             return None
+
+         v1, lambda1, _ = metpot2k(A, tol, K)  # v1 = primer autovector de A ; lambda1 = autovalor
+
+         n = A.shape[0]
+         e1 = np.zeros(n)
+         e1[0] = 1  # e1 es el primer vector canonico
+         # Cambio sentido (en caso de que e1 y v1 sean muy similares u queda casi 0. si v1 es muy similar a -e1 me quedaria
+         #u muy similar a -2e1) v1 y -v1 son el mismo autovector matematicamente, tomo el v1 positivo para que sea similar
+         #a e1 (correcto con algoritmo de householder, justamente busco esto, que v1 y e1 sean similares)
+         if v1[0] < 0:
+             v1 = -v1
+         u = v1 - e1
+         Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
+         if n == 2:
+             S = Hv1
+             D = ((Hv1@A)@Hv1.T)   # Hv1 @ A @ Hv1.T
+         else:
+             B = ((Hv1@A)@Hv1.T)   # Hv1 @ A @ Hv1.T
+             A_moño = B[1:, 1:]
+             #Al hacer diagRH recursivamente vamos acumulando error que podria dar que no sea simetrico (pase la tolerancia)
+             #con este paso intermedio nos aseguramos que respete la simetria en cada iteracion:
+             A_moño = (A_moño + A_moño.T) / 2  
+             S_moño, D_moño = diagRH(A_moño, tol=1e-15, K=100)
+
+             D = np.zeros((n, n))
+             D[0, 0] = lambda1
+             D[1:, 1:] = D_moño
+             auxiliar = np.zeros((n, n))
+             auxiliar[0, 0] = 1
+             auxiliar[1:, 1:] = S_moño
+             S = (Hv1@auxiliar)   # Hv1 @ auxiliar
+         return S, D
+
+"""
+#####################################################################################
+#modulo 7
+#####################################################################################
+"""
+# Funciones del Módulo
+
+def transiciones_al_azar_continuas(n):
+    A = np.random.rand(n,n)  # crea una matriz A de n x n con elementos reales entre 0 y 1
+
+    for i in range(0,n,1):
+        suma_columnas = 0
+        for j in range(0,n,1):  # suma los elementos de la columna i, con j cambiando las filas
+            suma_columnas += A[j][i]
+        for m in range(0,n,1):  # para cada elemento de la columna i, lo divide con el valor de la suma de los elems de la misma columna
+            A[m][i] = A[m][i] / suma_columnas
+
+    return A
+
+
+def transiciones_al_azar_uniformes(n,thres):
+    A = np.random.rand(n,n)  # crea una matriz A de n x n con elementos reales entre 0 y 1)
+    for i in range(0,n,1):  # fijación de los elems de A dependiendo de la condicion
+        for j in range(0,n,1):
+            if A[j][i] < thres:
+                A[j][i] = 1
+            else:
+                A[j][i] = 0
+    for i in range(0,n,1):
+        suma_columnas = 0
+        for j in range(0,n,1):  # suma los elementos de la columna i, con j cambiando las filas
+            suma_columnas += A[j][i]
+        #para tests: si no hay unos devuelvo 1 dividido la cantidad de elementos de la columna (parece ser lo que se espera en los test). Preguntar
+        if suma_columnas == 0:
+            A[:,i] = 1/n
+        else:
+            A[:,i] = (A[:, i]/suma_columnas)
+
+    return A
+
+def nucleo(A,tol=1e-15):
+    # Primero calculamos A^t por A y lo llamamos B
+    B = (A.T@A)
+
+    # Luego uso diagRH (diagonalizacion con Householder)
+    S, D = diagRH(B, tol, K=100)
+
+    # Los autovalores de B (A^t por A) son:
+    autovalores = np.diag(D)
+
+    # Creo una lista vacias que se guardaran los vectores del Nucleo normalizados:
+    v_nucleo = []
+
+    for i in range(0, len(autovalores), 1):
+        if abs(autovalores[i]) < tol:
+            v = S[:,i]
+            sumatoria = 0
+            for j in range(0,len(v),1):
+                sumatoria += (v[j])**2
+            norma = np.sqrt(sumatoria)
+            v = v / norma
+            v_nucleo.append(v)
+
+    if len(v_nucleo) == 0:
+        return np.array([])
     else:
-        B = (Hv1@A)@(Hv1.T)   # Hv1 @ A @ Hv1.T
-        A_moño = B[1:, 1:]
-        S_moño, D_moño = diagRH(A_moño,tol=1e-15,K=1000)
-        
-        D = np.zeros((n, n))
-        D[0, 0] = lambda1
-        D[1:, 1:] = D_moño
-
-        auxiliar = np.zeros((n, n))
-        auxiliar[0, 0] = 1
-        auxiliar[1:, 1:] = S_moño
-        S = (Hv1@ auxiliar)   # Hv1 @ auxiliar
-
-    return S, D
+        # Devuelvo los vectores como columnas
+        return np.array(v_nucleo).T
 
 
+def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
+    #si me pasan listado vacio devuelvo diccionario vacio y m_filas y n_columnas
+    if listado == []:
+        return {}, (m_filas, n_columnas)
+    
+    filas = listado[0]
+    columnas = listado[1]
+    valores = listado[2]
 
+    A_dict_res = {}
+
+    for i in range(0, len(valores), 1):
+        if abs(valores[i]) < tol:
+            valores[i] = 0
+
+    for j in range(0, len(valores), 1):
+        if valores[j] == 0:
+            pass
+        else:
+            A_dict_res[(filas[j],columnas[j])] = valores[j]
+            
+    return A_dict_res, (m_filas, n_columnas)
+
+
+def multiplica_rala_vector(A, v):
+    # A es una matriz rala representada como [diccionario, (m, n)].
+    A_dict_res, (m, n) = A
+    
+    w = np.zeros(m)  # w = [0, 0,...,0] m (cantidad de filas de A) veces 
+
+    for clave in A_dict_res:        # "clave" es la tupla de las claves (fila, columna).
+        fila = clave[0]             # primer elemento de la tupla en las claves del diccionario.
+        columna = clave[1]          # segundo elemento de la tupla en las claves del diccionario.
+        valor = A_dict_res[clave]   # valor en esa posición.
+
+        w[fila] += valor * v[columna]   # la fila de w es igual al valor de la clave por la columna del vector v
+
+    return w
+
+
+#A = crea_rala(listado, 6, 4)  # ---> [{(0, 1): 10, (2, 3): 4, (5, 0): 7}, (6, 4)]   --->  np.array([0, 10, 0, 0],   # fila 0
+                              #                                                                    [0, 0, 0, 0],    # fila 1
+                              #                                                                    [0, 0, 0, 4],    # fila 2
+                              #                                                                    [0, 0, 0, 0],    # fila 3
+                              #                                                                    [0, 0, 0, 0],    # fila 4
+                              #                                                                    [7, 0, 0, 0])    # fila 5
+ 
+#v = np.array([1,2,3,4])
+#  print(multiplica_rala_vector(A, v))  ------>  [20.  0. 16.  0.  0.  7.]
+
+"""
+#####################################################################################
+#modulo 8
+#####################################################################################
+"""
+
+
+"""
 def multiplicacionMatricial(A, B):
     # Si A es un vector va a fallar .shape de numpy, por lo que lo convierto a matriz de 1 fila
     if len(A.shape) == 1:
@@ -1116,28 +1029,8 @@ def multiplicacionMatricial(A, B):
         
     return res
 
+"""
 
-#def multiplicacion_de_matrices_sin_numpy(A,B):
-    #n = A.shape[0] # filas de A
-    #m = A.shape[1] # columnas de A
-    #r = B.shape[0] # filas de B
-    #s = B.shape[1] # columnas de B
-
-    #if m == n:
-     #   res = np.zeros((n, s))
-
-      #  for i in range(0, n ,1):
-       #     for j in range(0, s, 1):
-        #        sumatoria = 0
-         #       t = 0
-          #      while t < m:
-           #         sumatoria += A[i, t] * B[t, j]
-            #        t += 1
-             #   res[i,j] = sumatoria
-       # return res
-
-    #else:
-     #   raise ValueError("Las dimensiones no son compatibles para la multiplicación de matrices.")
 
 # Funcion del ejercicio
 
@@ -1146,9 +1039,9 @@ def svd_reducida(A, k="max", tol=1e-15):
     m = A.shape[1] # Cantidad de columnas de A
 
     if n >= m: # Filas >= Columnas
-        B = A.T @ A  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
+        B = (traspuestaConNumpy(A)@ A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatV_aux, D_aux = diagRH(B, tol, k)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatV_aux, D_aux = diagRH(B)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
         autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
         hatV = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
@@ -1158,7 +1051,7 @@ def svd_reducida(A, k="max", tol=1e-15):
                 autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux.
                 hatV.append(hatV_aux[:, i].tolist())  # guardo la columna válida.
                 
-        hatV = np.array(hatV).T  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
+        hatV = traspuestaConNumpy(np.array(hatV))  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
 
         valores_singulares = []
 
@@ -1170,7 +1063,9 @@ def svd_reducida(A, k="max", tol=1e-15):
         hatU = np.zeros((n, len(valores_singulares)))  # Creamos la matriz hatU con una matriz de ceros de dimension n (cant. filas de A) x cant. valores singulares)
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatU
-            Av = A @ hatV[:, t]  # A * v_k
+            Av = (A@hatV[:, t])  # A * v_k
+            if len(Av.shape) == 2 and Av.shape[1] == 1:
+                Av = Av[:, 0]
             hatU[:, t] = Av / valores_singulares[t]  # Columna de U en posición k = Av, osea A * v_k / valor sigular k.
                                                      # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
         
@@ -1178,14 +1073,15 @@ def svd_reducida(A, k="max", tol=1e-15):
             hatU = hatU[:, :k]
             hatV = hatV[:, :k]
             hatSig = hatSig[:k, :k]
-            
+
+        hatSig=np.array(np.diag(hatSig))
         return hatU, hatSig, hatV
 
     
     else: # Filas < Columnas
-        B = multiplicacionMatricial(A, A.T)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
+        B = (A@ traspuestaConNumpy(A))  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatU_aux, D_aux = diagRH(B, tol, k)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatU_aux, D_aux = diagRH(B)  # en hatU se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
 
         autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
         hatU = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
@@ -1195,7 +1091,7 @@ def svd_reducida(A, k="max", tol=1e-15):
                 autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux.
                 hatU.append(hatU_aux[:, i].tolist()) # elimino la columna (autovector) del autovalor menor a tol.
                 
-        hatU = np.array(hatU).T  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
+        hatU = traspuestaConNumpy(np.array(hatU))  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
 
         valores_singulares = []
 
@@ -1207,7 +1103,9 @@ def svd_reducida(A, k="max", tol=1e-15):
         hatV = np.zeros((m, len(valores_singulares)))  # Creamos la matriz hatV con una matriz de ceros de dimension m (cant. columnas de A) x cant. valores singulares)
 
         for t in range(0, len(valores_singulares), 1):  # Calcula hatV
-            A_tras_u = multiplicacionMatricial(A.T, hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
+            A_tras_u = (traspuestaConNumpy(A)@hatU[:, t])  # A traspuesta * u_k. Ahora es A traspuesta porque vk = (AT * σk) / uk, es decir la columna k de la matriz V es igual a (la matriz A tras * la columna k de la matriz hatU) / el valor singular sw posicion k
+            if len(A_tras_u.shape) == 2 and A_tras_u.shape[1] == 1:
+                A_tras_u = A_tras_u[:, 0]
             hatV[:, t] = A_tras_u / valores_singulares[t]  # Columna de V en posición k = Au, osea A * u_k / valor sigular k.
                                                            # Como dividimos por el valor singular, el vector queda normalizado, es decir que da norma = 1, por lo que no hace falta normalizarlo.
 
@@ -1215,7 +1113,8 @@ def svd_reducida(A, k="max", tol=1e-15):
             hatU = hatU[:, :k]
             hatV = hatV[:, :k]
             hatSig = hatSig[:k, :k]
-            
+        
+        hatSig=np.array(np.diag(hatSig))
         return hatU, hatSig, hatV
         
         

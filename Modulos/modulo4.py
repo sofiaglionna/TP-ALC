@@ -163,9 +163,6 @@ def calculaLDV(A):
 
     return L, D, V
 
-
-import numpy as np
-
 def esSDP(A, atol=1e-10):
     """
     Checkea si la matriz A es Simétrica Definida Positiva (SDP)
