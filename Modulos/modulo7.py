@@ -1,5 +1,5 @@
 import numpy as np
-from AUXILIARES import absoluto,producto_interno, producto_externo, esSimetrica, f_A, f_A_kveces, traspuestaConNumpy, multiplicacionMatricialConNumpy
+from AUXILIARES import absoluto,producto_interno, producto_externo, f_A, f_A_kveces, traspuestaConNumpy, multiplicacionMatricialConNumpy
 from modulo6 import diagRH
 
 # Funciones del Módulo
