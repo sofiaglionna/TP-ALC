@@ -38,6 +38,18 @@ import numpy as np
 #) f_A_kveces(A, v, k)
 #======================================
 
+def norma(x,p):
+    if p == 'inf':
+        max = 0
+        for elem in x:
+            if abs(elem) > max:
+                max = abs(elem)
+        return max
+    res = 0
+    for elem in x:
+        res = elem**p + res
+    return res**(1/p)
+
 def esCuadrada(A):
     if A.shape[0] == A.shape[1]:
         return True
