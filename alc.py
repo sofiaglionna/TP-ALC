@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from alcModulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial, calculaQR, matricesIguales, esSimetricaConTol, calculaCholesky, sustitucionHaciaAdelante, sustitucionHaciaAtras, svd_reducida
 
 # ======================================== 
@@ -15,17 +14,17 @@ from alcModulos import traspuestaConNumpy as traspuesta, inversa, multiplicacion
 ### Yt = 2 filas x 2000 columnas (1000 gatos y 1000 perros)
 ### Yv = 2 filas x 1000 columnas (500 gatos y 500 perros)
 
-def cargarDataset(carpeta): #todavia habria ue hacer que se le tenga que pasar una carpeta como parametro
+def cargarDataset(carpeta):
     # X_train:
-    traincats = np.load("template-alumnos/cats_and_dogs/train/cats/efficientnet_b3_embeddings.npy")
-    traindogs = np.load("template-alumnos/cats_and_dogs/train/dogs/efficientnet_b3_embeddings.npy")
+    traincats = np.load(carpeta + "train/cats/efficientnet_b3_embeddings.npy")
+    traindogs = np.load(carpeta + "train/dogs/efficientnet_b3_embeddings.npy")
 
     # Juntamos X_train de gatos y perros:
     Xt = np.concatenate((traincats, traindogs), axis=1)
 
     # X_validation:
-    valcats = np.load("template-alumnos/cats_and_dogs/val/cats/efficientnet_b3_embeddings.npy")
-    valdogs = np.load("template-alumnos/cats_and_dogs/val/dogs/efficientnet_b3_embeddings.npy")
+    valcats = np.load(carpeta + "val/cats/efficientnet_b3_embeddings.npy")
+    valdogs = np.load(carpeta + "val/dogs/efficientnet_b3_embeddings.npy")
 
     # Juntamos X_validation de gatos y perros:
     Xv = np.concatenate((valcats, valdogs), axis=1)
@@ -77,11 +76,11 @@ def pinVEcuacionesNormales(X, L, Y):
 
     Z_traspuesta = sustitucionHaciaAdelante(L, X) 
 
-    L_traspuesta = L.T
+    L_traspuesta = traspuesta(L)
     V_traspuesta = sustitucionHaciaAtras(L_traspuesta, Z_traspuesta)
 
-    V = V_traspuesta.T 
-    W_cholesky = Y @ V 
+    V = traspuesta(V_traspuesta)
+    W_cholesky = multiplicacionMatricial(Y,V)
 
     return W_cholesky
 
@@ -125,9 +124,7 @@ def pinvSVD(U, S, Vt, Y):
         for j in range(1536):
             V_expandida[i][j] = Vt[i][j]
 
-    V = V_expandida
-
-    VxSigma = multiplicacionMatricial(V,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
+    VxSigma = multiplicacionMatricial(V_expandida,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
 
     pseudoX = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
 
@@ -141,18 +138,11 @@ def pinvSVD(U, S, Vt, Y):
 
 #%% a) HouseHolder
 """
-La función se denomina pinvHouseHolder(Q, R, Y). La función recibe
-la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
+La función se denomina pinvHouseHolder(Q, R, Y). 
+La función recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
 descomposición QR utilizando HouseHolder, y Y la matriz de targets de entrenamiento.
 La función devuelve W.
 """
-
-#Calculamos Q y R de X traspuesta que son las que necesitamos para el algoritmo 3
-#XtTraspuesta = traspuesta(Xt)
-#QyRHH = calculaQR(XtTraspuesta, "RH")
-#QHH = QyRHH[0]
-#RHH = QyRHH[1]
-
 
 def pinvHouseHolder(Q, R, Y):
     #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
@@ -160,15 +150,15 @@ def pinvHouseHolder(Q, R, Y):
     #resuelvo V * R^T = Q como R*V^T = Q^T
     Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
     V = traspuesta(Vtraspuesta)
-    W = (Y@V)
+    W = multiplicacionMatricial(Y,V)
     return W
 
 #%% b) Gram-Schmidt 
 """
-La función se denomina pinvGramSchmidt(Q, R, Y). La función
-recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
-descomposición QR utilizando GramSmidth, y Y la matriz de targets de
-entrenamiento. La función devuelve W.
+La función se denomina pinvGramSchmidt(Q, R, Y). 
+La función recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
+descomposición QR utilizando GramSmidth, y Y la matriz de targets de entrenamiento. 
+La función devuelve W.
 """
 def pinvGramSchmidt(Q, R, Y):
     #trasponemos las 2 matrices para hacer (R^T)(V^T) = (Q^T) y despejar V^T
@@ -176,32 +166,7 @@ def pinvGramSchmidt(Q, R, Y):
     #resuelvo V R^T = Q como R*V^T = Q^T
     Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
     V = traspuesta(Vtraspuesta)
-    W = (Y@V)
-    return W
-
-############################################################
-#Esto no funciona, gram schmidt toma matrices cuadradas (lo pide asi el modulo) que hacemos?
-############################################################
-"""
-filas, columnas = XtTraspuesta.shape
-QyRGS = calculaQR(XtTraspuesta, "GS")
-QGS = QyRGS[0]
-RGS = QyRGS[1]
-
-#me quedo con las filas y columnas utiles de QR (luego de ver que hacemos con casos no cuadrados podemos hacer que esto se haga directo en el algoritmo)
-QGS = QGS[0:filas,0:columnas]
-RGS = RGS[0:columnas,0:columnas]
-"""
-###########################################
-#el enunciado dice gram schmidt clasico, nosotros usamos el modificado. Lo cambiamos?
-##########################################
-def pinvGramSchmidt(Q, R, Y):
-    #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
-    Qtraspuesta = traspuesta(Q)
-    #resuelvo V * R^T = Q como R*V^T = Q^T
-    Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
-    V = traspuesta(Vtraspuesta)
-    W = (Y@V)
+    W = multiplicacionMatricial(Y,V)
     return W
 
 # ========================================
@@ -209,8 +174,8 @@ def pinvGramSchmidt(Q, R, Y):
 # ========================================
 
 """
-Recibe dos matrices (X, pX) y devuelve True si verifican las condiciones de Moore-Penrose (Es decir si una es pseudo inversa de la otra). 
-En caso contrario devolvuelve False.
+Recibe dos matrices (X, pX) y devuelve True si verifican las condiciones de Moore-Penrose (Es decir si pX es pseudo inversa de X). 
+En caso contrario devuelve False.
 """
 
 def esPseudoInverda(X, pX, tol=1e-8):
