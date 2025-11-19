@@ -42,34 +42,25 @@ def transiciones_al_azar_uniformes(n,thres):
 ##############################################################################################################
 
 
-def nucleo(A,tol=1e-15):
-    # Primero calculamos A^t por A y lo llamamos B
-    B = multiplicacionMatricialConNumpy(traspuestaConNumpy(A),A)
+def nucleo(A, tol=1e-15):
 
-    # Luego uso diagRH (diagonalizacion con Householder)
+    B = multiplicacionMatricialConNumpy(traspuestaConNumpy(A), A)
     S, D = diagRH(B, tol, K=1000)
 
-    # Los autovalores de B (A^t por A) son:
     autovalores = np.diag(D)
 
-    # Creo una lista vacias que se guardaran los vectores del Nucleo normalizados:
-    v_nucleo = []
+    vectores = []
+    for i in range(len(autovalores)):
+        if absoluto(autovalores[i]) < 1e-12:
+            v = S[:, i]
+            norma = (np.sum(v*v))**(1/2)
+            if norma > 0:
+                vectores.append(v / norma)
 
-    for i in range(0, len(autovalores), 1):
-        if absoluto(autovalores[i]) < tol:
-            v = S[:,i]
-            sumatoria = 0
-            for j in range(0,len(v),1):
-                sumatoria += (v[j])**2
-            norma2 = sumatoria**(1/2)
-            v = v / norma2
-            v_nucleo.append(v)
-
-    if len(v_nucleo) == 0:
+    if len(vectores) == 0:
         return np.array([])
-    else:
-        # Devuelvo los vectores como columnas
-        return traspuestaConNumpy(np.array(v_nucleo))
+
+    return traspuestaConNumpy(np.array(vectores))
 
 
 def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
