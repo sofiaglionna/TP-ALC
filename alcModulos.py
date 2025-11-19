@@ -726,43 +726,79 @@ def norma2(a):
     return norma(a,2)
 
 def QR_con_GS (A,tol=1e-12, retornanops=False):
-    #si no es cuadrada devuelve None
-    if len(A.shape) == 1:
-        if A.shape[0] != 1:
-            return None 
     if A.shape[0] != A.shape[1]:
         return None
-    ColumnasA = columnas(A)
-    #Hago el algoritmo QR
     N_ops = 0
-    Q = np.zeros((len(ColumnasA),len(ColumnasA)))
-    R = np.zeros((len(ColumnasA),len(ColumnasA)))
-    for j in range(0,len(ColumnasA)):
-        a=ColumnasA[j]
-        #len(a) multiplicaciones, len(a)-1 sumas y una raiz cuadrada
-        N_ops += 2*len(a)
-        rjj = norma2(a)
-        #paso a a vector
-        a = np.array(a)
-        #si rjj es practicamente 0 (menor a tol) le asigno 0
-        if rjj < tol:
-            R[j,j] = 0.0
-            Q[0:len(ColumnasA), j] = 0.0
-        else:
-            R[j, j] = rjj
-            #len(a) divisiones 
-            qj = a / rjj
-            N_ops += len(a)
-            Q[0:len(ColumnasA), j] = qj
-        for i in range(j+1,len(ColumnasA)):
-            # len(qj) multiplicaciones y sumas -> 2*len(qj) operaciones
-            rji = multiplicacionMatricialConNumpy(qj,np.array(ColumnasA[i]))
-            R[j,i] = rji
-            # len(qj) multiplicaciones y restas -> 2*len(qj) operaciones
-            ColumnasA[i] = ColumnasA[i] - rji*qj
-            #cuento operaciones
-            N_ops += 2*len(qj)
-            N_ops += 2*len(qj)
+    filasA,columnasA = A.shape
+    Q=np.zeros(A.shape)
+    R=np.zeros((columnasA,columnasA))
+    Atraspuesta = traspuestaConNumpy(A)
+    N_ops += 2*filasA + 1  # costo de la norma (filasA multiplicaciones y sumas y una raiz cuadrada al final)
+    norma2DeTransA = norma2(Atraspuesta[0])
+    N_ops += filasA  #costo de divisiones
+    Q[:,0]=Atraspuesta[0]/norma2DeTransA
+    R[0,0] = norma2DeTransA
+    for j in range (1,columnasA):
+        Qj = Atraspuesta[j]
+        for k in range (0,j):
+            columnaQk = Q[:,k]
+            N_ops += 2*filasA #costo de multiplicacion matricial entre 2 vectores
+            #como ambos son vectores fila hago producto interno
+            rkj = producto_interno(columnaQk,(Qj))
+            R[k,j] = rkj
+            N_ops += 2*filasA #numero filasA de multiplicaciones y restas
+            Qj = Qj - rkj*columnaQk
+        N_ops += 2*filasA + 1  # costo de la norma
+        R[j,j] = norma2(Qj)
+        #si rjj es practicamente 0 asigno 0 a la columna qj (a mayor rjj mas independiente es Qj, si es 0 es LD de los anteriores)
+        if R[j,j] < tol:
+            Q[:, j] = 0
+            continue
+        N_ops += filasA #filasA divisiones
+        Q[:,j] = (Qj/R[j,j])
+    #print para visualizar
+    #print("Matriz Q:")
+    #for fila in Q:
+    #    print(fila)
+    #
+    #print("\nMatriz R:")
+    #for fila in R:
+    #    print(fila)
+    if retornanops:
+    #    print(N_ops)
+        return Q,R,N_ops
+    else:
+        return Q,R
+
+def QR_con_GS_para_TP (A,tol=1e-12, retornanops=False): #(admite matrices rectangulares)
+    N_ops = 0
+    filasA,columnasA = A.shape
+    Q=np.zeros(A.shape)
+    R=np.zeros((columnasA,columnasA))
+    Atraspuesta = traspuestaConNumpy(A)
+    N_ops += 2*filasA + 1  # costo de la norma (filasA multiplicaciones y sumas y una raiz cuadrada al final)
+    norma2DeTransA = norma2(Atraspuesta[0])
+    N_ops += filasA  #costo de divisiones
+    Q[:,0]=Atraspuesta[0]/norma2DeTransA
+    R[0,0] = norma2DeTransA
+    for j in range (1,columnasA):
+        Qj = Atraspuesta[j]
+        for k in range (0,j):
+            columnaQk = Q[:,k]
+            N_ops += 2*filasA #costo de multiplicacion matricial entre 2 vectores
+            #como ambos son vectores fila hago producto interno
+            rkj = producto_interno(columnaQk,(Qj))
+            R[k,j] = rkj
+            N_ops += 2*filasA #numero filasA de multiplicaciones y restas
+            Qj = Qj - rkj*columnaQk
+        N_ops += 2*filasA + 1  # costo de la norma
+        R[j,j] = norma2(Qj)
+        #si rjj es practicamente 0 asigno 0 a la columna qj (a mayor rjj mas independiente es Qj, si es 0 es LD de los anteriores)
+        if R[j,j] < tol:
+            Q[:, j] = 0
+            continue
+        N_ops += filasA #filasA divisiones
+        Q[:,j] = (Qj/R[j,j])
     #print para visualizar
     #print("Matriz Q:")
     #for fila in Q:
@@ -812,8 +848,9 @@ def QR_con_HH (A,tol=1e-12):
     R = A.copy()
     #paso a float para evitar errores
     R= R.astype(float)
-    Q = np.identity(filas)
-    for k in range(0,columnas):
+    Q = np.identity(filas)[:, :columnas]
+    #No calculo todo Q y R sino sus versiones reducidas para optimizar
+    for k in range(0, min(filas, columnas)):
         X = R[k:filas,k].copy()
         a= (signo(X[0]))*(norma2(X))
         u = X - (a*canonico(0,filas-k))
@@ -821,12 +858,18 @@ def QR_con_HH (A,tol=1e-12):
             u = u/norma2(u)
             R_sub = R[k:filas, 0:columnas]
             UporR = multiplicacionMatricialConNumpy(u, R_sub)
+            if UporR.shape[0] == 1:
+                UporR = UporR[0]
             #UporR siempre es un vector ya que u lo es y es un producto matricial
             R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
-            Q_sub = Q[0:filas, k:filas]
+            Q_sub = Q[:, k:columnas]
             Qu = multiplicacionMatricialConNumpy(Q_sub, u)
+            if Qu.shape[0] == 1:
+                Qu = Qu[0]
             #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
             Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
+    #reduzco R
+    R = R[:columnas, :columnas]
     return Q,R
 
 metodos = ["RH","GS"]
@@ -834,7 +877,7 @@ def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
     if metodo not in metodos:
         return None
     if metodo == "GS":
-        return QR_con_GS(A,tol,retornanops)
+        return QR_con_GS_para_TP(A,tol,retornanops)
     elif metodo == "RH":
         return QR_con_HH(A,tol)
 
