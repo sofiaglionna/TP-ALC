@@ -65,11 +65,11 @@ def cargarDataset(carpeta): #todavia habria ue hacer que se le tenga que pasar u
 # ========================================
 """
 La función se denomina pinvEcuacionesNormales(L, Y). 
--La función recibe la matriz X de los embeddings de entrenamiento, ---> Esto no lo entiendo pq no se le pasa como parámetro "X"
--L la matriz de Cholesky, y Y la matriz de targets de entrenamiento. 
+-La función recibe la matriz X de los embeddings de entrenamiento,
+-L la matriz de Cholesky, e Y la matriz de targets de entrenamiento. 
 -La función devuelve W.
 
-X pertenece a (n = 1536 x p = 2000) --->  n < p
+X nxp (n = 1536 x p = 2000) --->  n < p
 Aplica caso b) Si rango(X) = p, n < p, entonces X+=Xt 
 """
 
@@ -94,69 +94,56 @@ La función se denomina pinvSVD(U, S, V, Y).
 -las matrices U, S, V de la descomposición SVD, e Y la matriz de targets de entrenamiento. 
 -La función devuelve W.
 
-Parámetros:
------------
-U : np.array
-    Matriz U de la descomposición SVD (nxr) donde r = rango(X)
-S : np.array
-    Matriz diagonal Σ con valores singulares (rxr)
-V : np.array
-    Matriz V de la descomposición SVD (pxr)
-Y : np.array
-    Matriz de targets (mxp)
-
 pseudoinversa de X con SVD:
 - X = U·Σ·Vᵀ
 - X⁺ = V·Σ⁺·Uᵀ 
 - W = Y·X⁺ = Y·V·Σ⁺·Uᵀ
 """
-# X pertenece a (n = 1536 x p = 2000) --->  n < p
-
-# Desc de X
-#U, S, Vt = svd_reducida(Xt, k="max")
 
 def pinvSVD(U, S, Vt, Y):
     
-    V = traspuesta(Vt) # svd devuelve V traspuesta asi que la trasponemos de nuevo para obtener V.
-
     Ut = traspuesta(U)
 
     #Pseudoinversa de sigma:
     #invertimos dimensiones de sigma
-    n = S.shape[0]
-    p = S.shape[1]
-
-    diag_S = np.diag(S)
+    n = U.shape[1] #1536
+    p = Vt.shape[0] #2000
 
     Sigma_pseudo = np.zeros((p,n))
     tol = 1e-10
     #asignamos los valores pseudoinversa de S (mismos que S pero invertidos)
     for i in range(min(p,n)):
-        if abs(diag_S[i]) > tol:
-            Sigma_pseudo[i][i] = 1.0 / diag_S[i]
+        if abs(S[i]) > tol:
+            Sigma_pseudo[i][i] = 1.0 / S[i]
         else:
             Sigma_pseudo[i][i] = 0.0
 
-    #print(Sigma_pseudo.shape)
-    #print(V.shape)
-    #print(Ut.shape)
-
+    #Hacemos V cuadrada (2000x2000) ya que para reducir tiempos, nuestra función de SVD devuelve una V de 2000x1536
     
-    #MULTILICACIÓN DE NUMPY
-    VxSigma = V @ Sigma_pseudo # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
+    V_expandida = np.zeros((2000,2000))
+    for i in range(2000):
+        for j in range(1536):
+            V_expandida[i][j] = Vt[i][j]
 
-    pseudoX = VxSigma @ Ut # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
-
-    W_SVD = Y @ pseudoX # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
-
+    V = V_expandida
+    
     """
+    #MULTILICACIÓN DE NUMPY
+    print(Sigma_pseudo.shape)
+    VxSigma = V @ Sigma_pseudo # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
+    print(VxSigma.shape)
+    pseudoX = VxSigma @ Ut # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
+    print(pseudoX.shape)
+    W_SVD = Y @ pseudoX # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
+    """
+    
     #MULTIPLICACIÓN SIN NUMPY
     VxSigma = multiplicacionMatricial(V,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
 
     pseudoX = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
 
     W_SVD = multiplicacionMatricial(Y, pseudoX) # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
-    """
+    
     return W_SVD
 
 # ========================================
