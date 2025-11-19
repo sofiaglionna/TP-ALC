@@ -14,8 +14,6 @@ import numpy as np
 
 #) esSimetricaConTol(A, atol=1e-10)
 
-#) esSimetrica(A)
-
 #) traspuesta(A)
 
 #) abs(x)
