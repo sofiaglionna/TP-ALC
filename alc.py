@@ -126,7 +126,7 @@ def pinvSVD(U, S, Vt, Y):
             V_expandida[i][j] = Vt[i][j]
 
     V = V_expandida
-    
+
     """
     #MULTILICACIÓN DE NUMPY
     print(Sigma_pseudo.shape)
@@ -166,13 +166,12 @@ La función devuelve W.
 
 
 def pinvHouseHolder(Q, R, Y):
-    #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
-    Rtraspuesta = traspuesta(R)
+    #trasponemos las 2 matrices para hacer (R^T)(V^T) = (Q^T) y despejar V^T
     Qtraspuesta = traspuesta(Q)
-    #resolvemos el sistema (R ya es triangular inferior)
-    Vtraspuesta= sustitucionHaciaAdelante (Rtraspuesta, Qtraspuesta)
+    #resuelvo V R^T = Q como R*V^T = Q^T
+    Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
     V = traspuesta(Vtraspuesta)
-    W = multiplicacionMatricial(Y,V)
+    W = (Y@V)
     return W
 
 #%% b) Gram-Schmidt 
@@ -182,6 +181,14 @@ recibe la matriz X de los embeddings de entrenamiento, las matrices Q,R de la
 descomposición QR utilizando GramSmidth, y Y la matriz de targets de
 entrenamiento. La función devuelve W.
 """
+def pinvGramSchmidt(Q, R, Y):
+    #trasponemos las 2 matrices para hacer (R^T)(V^T) = (Q^T) y despejar V^T
+    Qtraspuesta = traspuesta(Q)
+    #resuelvo V R^T = Q como R*V^T = Q^T
+    Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
+    V = traspuesta(Vtraspuesta)
+    W = (Y@V)
+    return W
 
 ############################################################
 #Esto no funciona, gram schmidt toma matrices cuadradas (lo pide asi el modulo) que hacemos?
@@ -214,8 +221,8 @@ def pinvGramSchmidt(Q, R, Y):
 # ========================================
 
 """
-Recibe dos matrices y devuelva True si verifican las condiciones de Moore-Penrose. 
-En caso contrario devolver False.
+Recibe dos matrices (X, pX) y devuelve True si verifican las condiciones de Moore-Penrose (Es decir si una es pseudo inversa de la otra). 
+En caso contrario devolvuelve False.
 """
 
 def esPseudoInverda(X, pX, tol=1e-8):
