@@ -23,6 +23,8 @@ def norma2(a):
 
 #funciona para A con #filas>=#columnas
 def QR_con_GS (A,tol=1e-12, retornanops=False):
+    if A.shape[0] != A.shape[1]:
+        return None
     N_ops = 0
     filasA,columnasA = A.shape
     Q=np.zeros(A.shape)
@@ -51,16 +53,8 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
             continue
         N_ops += filasA #filasA divisiones
         Q[:,j] = (Qj/R[j,j])
-    #print para visualizar
-    #print("Matriz Q:")
-    #for fila in Q:
-    #    print(fila)
-    #
-    #print("\nMatriz R:")
-    #for fila in R:
-    #    print(fila)
+    
     if retornanops:
-    #    print(N_ops)
         return Q,R,N_ops
     else:
         return Q,R
@@ -102,7 +96,7 @@ def QR_con_HH (A,tol=1e-12):
     R = A.copy()
     #paso a float para evitar errores
     R= R.astype(float)
-    Q = np.identity(filas)
+    Q = np.identity(filas)[:, :columnas]
     #No calculo todo Q y R sino sus versiones reducidas para optimizar
     for k in range(0, min(filas, columnas)):
         X = R[k:filas,k].copy()
@@ -116,12 +110,14 @@ def QR_con_HH (A,tol=1e-12):
                 UporR = UporR[0]
             #UporR siempre es un vector ya que u lo es y es un producto matricial
             R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
-            Q_sub = Q[0:filas, k:filas]
+            Q_sub = Q[:, k:columnas]
             Qu = multiplicacionMatricialConNumpy(Q_sub, u)
             if Qu.shape[0] == 1:
                 Qu = Qu[0]
             #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
             Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
+    #reduzco R
+    R = R[:columnas, :columnas]
     return Q,R
 #print(QR_con_HH(A))
 metodos = ["RH","GS"]
