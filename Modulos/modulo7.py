@@ -1,5 +1,5 @@
 import numpy as np
-from AUXILIARES import absoluto,producto_interno, producto_externo, f_A, f_A_kveces, traspuestaConNumpy, multiplicacionMatricialConNumpy
+from AUXILIARES import norma,absoluto,producto_interno, producto_externo, f_A, f_A_kveces, traspuestaConNumpy, multiplicacionMatricialConNumpy
 from modulo6 import diagRH
 
 # Funciones del Módulo
@@ -53,9 +53,9 @@ def nucleo(A, tol=1e-15):
     for i in range(len(autovalores)):
         if absoluto(autovalores[i]) < 1e-12:
             v = S[:, i]
-            norma = (np.sum(v*v))**(1/2)
-            if norma > 0:
-                vectores.append(v / norma)
+            norma2 = norma(v,2)
+            if norma2 > 0:
+                vectores.append(v / norma2)
 
     if len(vectores) == 0:
         return np.array([])
