@@ -120,60 +120,58 @@ def productoExterior (A,B):
     return res
     
 #No usamos el algoritmo de la guia, usamos uno mejor optimizado (no construye H moño, muy costoso en matrices A grandes)
-def QR_con_HH(A, tol=1e-12):
-    # A es X^T: (2000 x 1536). m=2000, n=1536.
+def QR_con_HH (A,tol=1e-12):
     m, n = A.shape
+    if m < n:
+        return None
     
     R = A.copy().astype(float)
-    Q = np.identity(m).astype(float) # Q debe ser I_m (2000 x 2000) para acumular las transformaciones.
-    
+    Q_full = np.identity(m).astype(float) # Inicializar Q como I_m (m x m)
+
     for k in range(n):
-        # 1. Obtener el vector x
-        x = R[k:m, k].copy()
+        # 1. Construcción del vector de Householder u (misma lógica que antes)
+        X = R[k:m, k].copy()
+        alpha = -signo(X[0]) * norma2(X)
         
-        # 2. Calcular alfa
-        alpha = -signo(x[0]) * norma2(x)
-        
-        # 3. Calcular el vector u
         e1 = np.zeros(m - k)
-        e1[0] = 1 # e1 es el vector canonico
-        u = x - (alpha * e1)
+        e1[0] = 1 # e1 vector canónico de R^(m-k)
+        u = X - (alpha * e1)
         
         if norma2(u) > tol:
-            u = u / norma2(u) # u es el vector normalizado
+            u = u/norma2(u)
             
-            # 4. Construir la matriz de Householder H_k (solo la parte relevante)
-            # H_k = I_m-k - 2 u u^T
-            # Aplicar H_k (o su version extendida H_tilde) a R y Q sin construir H_tilde.
-            
-            # --- Aplicar a R (Paso R <- H_tilde @ R) ---
-            # Aplicamos la transformación al bloque R[k:m, k:n]
+            # --- APLICACIÓN A R (R <- H_k R) ---
+            # Bloque R[k:m, k:n]
             R_sub = R[k:m, k:n]
-            v_T_R_sub = multiplicacionMatricialConNumpy(u, R_sub) # u^T @ R_sub (resultado 1 x n-k)
             
-            # R_sub = R_sub - 2 * u @ v_T_R_sub
-            R[k:m, k:n] = R_sub - 2 * productoExterior(u, v_T_R_sub)
+            # Calculamos la proyección: u^T * R_sub
+            UporR = multiplicacionMatricialConNumpy(u, R_sub) # Resultado es 1 x (n-k)
+            UporR_vector = UporR[0] # Extraemos el vector 1D
             
-            # 5. Fijar el primer elemento de la columna a alpha (R es triangular superior)
+            # R_sub = R_sub - 2 * u @ (u^T @ R_sub)
+            R[k:m, k:n] = R_sub - 2 * productoExterior(u, UporR_vector)
+            
+            # Fijamos los ceros y alpha en la columna k
             R[k, k] = alpha 
-            # Fijar el resto de la columna a cero (los ceros bajo la diagonal)
-            R[k+1:m, k] = 0.0 
+            R[k+1:m, k] = 0.0
             
-            # --- Aplicar a Q (Paso Q <- Q @ H_tilde^T) ---
-            # Q_sub = Q[0:m, k:m]
-            Q_sub = Q[:, k:m]
+            # --- APLICACIÓN A Q (Q <- Q H_k^T) ---
+            # Aplicamos la misma reflexión H_k (simétrica) a la matriz Q_full
             
-            # Q_sub @ u (resultado m x 1)
-            Q_u = multiplicacionMatricialConNumpy(Q_sub, u)
+            Q_sub = Q_full[:, k:m] # Bloque Q[0:m, k:m]
             
-            # Q_sub = Q_sub - 2 * Q_u @ u^T
-            Q[:, k:m] = Q_sub - 2 * productoExterior(Q_u, u)
+            # Calculamos la proyección: Q_sub @ u
+            Q_u = multiplicacionMatricialConNumpy(Q_sub, u) # Resultado es m x 1
+            Q_u_vector = Q_u.flatten() # Extraemos el vector 1D
             
-    # 6. Devolver la QR Reducida: Q(2000x1536), R(1536x1536)
-    # R ya está en la parte superior izquierda. Q
-   #fue construida en Full-Size.
-    Q_reducida = Q[:, :n] # Tomamos las primeras n columnas
-    R_reducida = R[:n, :n] # Tomamos el bloque superior n x n
+            # Q_sub = Q_sub - 2 * (Q_sub @ u) @ u^T
+            # Usamos Q_u_vector (m) y u (m-k)
+            # Reajustamos Q_full[0:m, k:m]
+            Q_full[:, k:m] = Q_sub - 2 * productoExterior(Q_u_vector, u)
+
+    # 2. Devolver la QR Reducida para el TP (Q m x n, R n x n)
+    Q_reducida = Q_full[:, :n] # Las primeras n columnas de Q_full
+    R_reducida = R[:n, :n]     # El bloque superior n x n de R
     
     return Q_reducida, R_reducida
 #print(QR_con_HH(A))

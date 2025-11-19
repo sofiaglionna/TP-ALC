@@ -68,7 +68,7 @@ for i in range(1,100):
     assert es_markov_uniforme(T), f"transiciones_al_azar_uniformes fallo para n={i}"
     T = transiciones_al_azar_uniformes(i,0.01)
     assert es_markov_uniforme(T), f"transiciones_al_azar_uniformes fallo para n={i}"
-    
+
 # nucleo
 A = np.eye(3)
 S = nucleo(A)
