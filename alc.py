@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from alcModulos import traspuestaConNumpy as traspuesta, inversa, multiplicacionMatricialConNumpy as multiplicacionMatricial, calculaQR, matricesIguales, esSimetricaConTol, calculaCholesky, sustitucionHaciaAdelante, sustitucionHaciaAtras, svd_reducida
 
-# ========================================
+# ======================================== 
 #%% 1. LECTURA DE DATOS
 # ========================================
 
@@ -72,26 +72,18 @@ La función se denomina pinvEcuacionesNormales(L, Y).
 X pertenece a (n = 1536 x p = 2000) --->  n < p
 Aplica caso b) Si rango(X) = p, n < p, entonces X+=Xt 
 """
-#A = multiplicacionMatricial(Xt, traspuesta(Xt))
-
-#L = calculaCholesky(A) #tolerancia 0 funciona?
-# A = LL^T
-#traspuestaX = traspuesta(Xt)
 
 def pinVEcuacionesNormales(X, L, Y):
-    # L^T Z^T = X
-    L_traspuesta = traspuesta(L)
-    Z_traspuesta = sustitucionHaciaAtras(L_traspuesta, X) 
-    # L V^T = Z^T
-    V_traspuesta = sustitucionHaciaAdelante(L, Z_traspuesta)
-    
-    # Finalmente resolvemos W = Y × V:
-    # Donde V = pseudo inversa de X
-    V = traspuesta(V_traspuesta)
-    W_cholesky = multiplicacionMatricial(Y, V)
-    
-    return W_cholesky
 
+    Z_traspuesta = sustitucionHaciaAdelante(L, X) 
+
+    L_traspuesta = L.T
+    V_traspuesta = sustitucionHaciaAtras(L_traspuesta, Z_traspuesta)
+
+    V = V_traspuesta.T 
+    W_cholesky = Y @ V 
+
+    return W_cholesky
 
 # ========================================
 #%% 3. DESCOMPOSICIÓN EN VALORES SINGULARES (SVD) - Algoritmo 2
