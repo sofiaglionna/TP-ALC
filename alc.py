@@ -167,7 +167,6 @@ La función devuelve W.
 
 def pinvHouseHolder(Q, R, Y):
     #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
-    Rtraspuesta = traspuesta(R)
     Qtraspuesta = traspuesta(Q)
     #resuelvo V * R^T = Q como R*V^T = Q^T
     Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
@@ -201,10 +200,9 @@ RGS = RGS[0:columnas,0:columnas]
 ##########################################
 def pinvGramSchmidt(Q, R, Y):
     #trasponemos las 2 matrices para hacer (R^T)*(V^T) = (Q^T) y despejar V^T
-    Rtraspuesta = traspuesta(R)
     Qtraspuesta = traspuesta(Q)
-    #resolvemos el sistema (R ya es triangular inferior)
-    Vtraspuesta= sustitucionHaciaAdelante (Rtraspuesta, Qtraspuesta)
+    #resuelvo V * R^T = Q como R*V^T = Q^T
+    Vtraspuesta= sustitucionHaciaAtras (R, Qtraspuesta)
     V = traspuesta(Vtraspuesta)
     W = (Y@V)
     return W
