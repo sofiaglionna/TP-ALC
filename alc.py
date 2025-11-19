@@ -127,17 +127,6 @@ def pinvSVD(U, S, Vt, Y):
 
     V = V_expandida
 
-    """
-    #MULTILICACIÓN DE NUMPY
-    print(Sigma_pseudo.shape)
-    VxSigma = V @ Sigma_pseudo # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
-    print(VxSigma.shape)
-    pseudoX = VxSigma @ Ut # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
-    print(pseudoX.shape)
-    W_SVD = Y @ pseudoX # Y = mxp , VxSigmaxU = pxn , ---> W_SVD = mxn
-    """
-    
-    #MULTIPLICACIÓN SIN NUMPY
     VxSigma = multiplicacionMatricial(V,Sigma_pseudo) # V = pxp , Sigmapseudo = pxn , ---> VxSigma = pxn 
 
     pseudoX = multiplicacionMatricial(VxSigma, Ut) # VxSigma = pxn , Ut = nxn , --->  VxSigmaxU = pxn
