@@ -53,6 +53,8 @@ S = np.vstack([
 
 A = S@D@S.T
 SRH,DRH = diagRH(A,tol=1e-15,K=1e5)
+print(D)
+print(DRH)
 assert np.allclose(D,DRH)
 assert np.allclose(np.abs(S.T@SRH),np.eye(A.shape[0]),atol=1e-7)
 

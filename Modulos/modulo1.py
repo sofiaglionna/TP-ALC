@@ -5,13 +5,7 @@ Created on Wed Nov  5 18:08:26 2025
 @author: Usuario
 """
 import numpy as np
-#funcion que devuelve el valor absoluto de un numero
-def absoluto (x):
-    if x < 0:
-        return -x
-    else:
-        return x
-
+from AUXILIARES import absoluto
 #funcion que devuelve el error absoluto de un numero y su version en numero de maquina
 def error(x,y):
     y= np.float64(y) #me aseguro de que y sea de tipo float64 (numero de maquina)

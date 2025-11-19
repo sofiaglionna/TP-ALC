@@ -11,7 +11,6 @@ import numpy as np
 
 # Funciones auxiliares en este archivo:
 
-#) esCuadrada(A)
 
 #) esSimetricaConTol(A, atol=1e-10)
 
@@ -43,7 +42,7 @@ def norma(x,p):
         max = 0
         for elem in x:
             if abs(elem) > max:
-                max = abs(elem)
+                max = absoluto(elem)
         return max
     res = 0
     for elem in x:
@@ -70,7 +69,7 @@ def esSimetricaConTol (A, tol=1e-10):
         for j in range(i + 1, n):
             # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
             # Esto se hace comparando el valor absoluto de la diferencia con atol.
-            if abs(A[i, j] - A[j, i]) > tol:
+            if absoluto(A[i, j] - A[j, i]) > tol:
                 return False # No es simétrica
     return True
 
@@ -124,6 +123,12 @@ def traspuesta(A):
       vector.append(A[j][i])
     resultado.append(vector)
   return resultado
+
+def absoluto (k):
+    if k < 0:
+        return -k
+    else:
+        return k
 
 #le aplica el absoluto a todos los elementos de una lista
 def absolutoLista(x):

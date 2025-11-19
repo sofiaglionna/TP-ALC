@@ -1,14 +1,14 @@
 import numpy as np
 
 #Auxilaires:
-from AUXILIARES import traspuestaConNumpy, transformar,multiplicacionMatricialConNumpy,inversa, absolutoLista
+from AUXILIARES import traspuestaConNumpy, transformar,multiplicacionMatricialConNumpy,inversa, absolutoLista, absoluto
 
 def norma(x,p):
     if p == 'inf':
         max = 0
         for elem in x:
-            if abs(elem) > max:
-                max = abs(elem)
+            if absoluto(elem) > max:
+                max = absoluto(elem)
         return max
     res = 0
     for elem in x:
@@ -65,7 +65,7 @@ def normaExacta(A, p=[1,'inf']):
         for i in range(0,m):
             suma = 0
             for j in range(0,n):
-                suma = suma + abs(matriz[i][j])
+                suma = suma + absoluto(matriz[i][j])
             if suma > max_norm1:
                 max_norm1 = suma
         res.append(max_norm1)
@@ -75,7 +75,7 @@ def normaExacta(A, p=[1,'inf']):
         for i in range(0,n):
             suma = 0
             for j in range(0,m):
-                suma = suma + abs(A[i][j])
+                suma = suma + absoluto(A[i][j])
             if suma > max_norminf:
                 max_norminf = suma
         res.append(max_norminf)

@@ -1,5 +1,5 @@
 import numpy as np
-from AUXILIARES import producto_interno, producto_externo, esSimetricaConTol, f_A, f_A_kveces,norma, traspuestaConNumpy as traspuesta, multiplicacionMatricialConNumpy as multiplicacionMatricial
+from AUXILIARES import producto_interno,absoluto, producto_externo, esSimetricaConTol, f_A, f_A_kveces,norma, traspuestaConNumpy, multiplicacionMatricialConNumpy as multiplicacionMatricial
 
 # Funciones del Módulo
 
@@ -13,7 +13,7 @@ def metpot2k(A, tol=1e-15, K=1000):
     e = producto_interno((v_barra), v)  # Medidor de parentezco entre v_barra y v.
     k = 0  # Cantidad de iteraciones.
 
-    while abs(e - 1) > tol and k < K:
+    while absoluto(e - 1) > tol and k < K:
         v = v_barra
         v_barra = f_A(A, v)
         v_barra = v_barra / norma(v_barra, 2)
@@ -22,7 +22,7 @@ def metpot2k(A, tol=1e-15, K=1000):
 
     Av = multiplicacionMatricial(A, v_barra)
     landa = producto_interno((v_barra), Av)#[0]#comentom  porque da error en el tp, testear  # El autovalor.
-    epsilon = abs(e - 1)  # El error
+    epsilon = absoluto(e - 1)  # El error
 
     return v_barra, landa, k
 
@@ -43,16 +43,29 @@ def diagRH(A, tol=1e-15, K=1000):
          if v1[0] < 0:
              v1 = -v1
          u = v1 - e1
-         Hv1 = np.eye(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
+         dif = v1 - e1
+         if norma(dif, 2) < 1e-12:   # tolerancia que usamos para House Holder en modulo 5
+            # En este caso, Hv1 es muy parecido a la identidad y no aplicamos House Holder
+            S = np.identity(n)
+            D = np.zeros((n, n))
+            D[0, 0] = lambda1
+    
+            if n > 1:
+                S_moño, D_moño = diagRH(A[1:, 1:], tol, K)
+                D[1:, 1:] = D_moño
+                S[1:, 1:] = S_moño
+    
+            return S, D
+         Hv1 = np.identity(n) - 2 * (producto_externo(u, u) / producto_interno(u, u)) # producto_externo es np.outer(u, u)  ;  producto_interno es np.dot(u,u), que es la norma al cuadrado de (e1 - v1)
          if n == 2:
              S = Hv1
-             D = multiplicacionMatricial(multiplicacionMatricial(Hv1, A), Hv1.T)   # Hv1 @ A @ Hv1.T
+             D = multiplicacionMatricial(multiplicacionMatricial(Hv1, A), traspuestaConNumpy(Hv1))   # Hv1 @ A @ Hv1.T
          else:
-             B = multiplicacionMatricial(multiplicacionMatricial(Hv1, A), Hv1.T)   # Hv1 @ A @ Hv1.T
+             B = multiplicacionMatricial(multiplicacionMatricial(Hv1, A), traspuestaConNumpy(Hv1))   # Hv1 @ A @ Hv1.T
              A_moño = B[1:, 1:]
              #Al hacer diagRH recursivamente vamos acumulando error que podria dar que no sea simetrico (pase la tolerancia)
              #con este paso intermedio nos aseguramos que respete la simetria en cada iteracion:
-             A_moño = (A_moño + A_moño.T) / 2  
+             A_moño = (A_moño + traspuestaConNumpy(A_moño)) / 2  
              S_moño, D_moño = diagRH(A_moño, tol=1e-15, K=1000)
 
              D = np.zeros((n, n))

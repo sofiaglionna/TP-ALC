@@ -1,5 +1,5 @@
 import numpy as np
-from AUXILIARES import multiplicacionMatricialConNumpy,extraer_sup
+from AUXILIARES import multiplicacionMatricialConNumpy,extraer_sup,absoluto
 
 
 def calculaLU(A):
@@ -38,7 +38,7 @@ def calculaLU(A):
 
     U = extraer_sup(Ac)
     L = Ac - U
-    L = L + np.eye(n)
+    L = L + np.identity(n)
 
 
 
@@ -152,7 +152,7 @@ def calculaLDV(A):
         d_ii = diag_U[i]
 
         # --- A. Chequeo de Singularidad (División por Cero) ---
-        if abs(d_ii) < atol:
+        if absoluto(d_ii) < atol:
             print(f"La matriz U es singular (pivote {i+1} es cero). No se puede completar LDV con V unitaria.")
             return None, None, None
 
@@ -177,7 +177,7 @@ def esSDP(A, atol=1e-10):
         for j in range(i + 1, n):
             # Comprobar si A[i, j] es significativamente diferente de A[j, i] (A^t)
             # Esto se hace comparando el valor absoluto de la diferencia con atol.
-            if abs(A[i, j] - A[j, i]) > atol:
+            if absoluto(A[i, j] - A[j, i]) > atol:
                 return False # No es simétrica
 
     # --- 2. CALCULAR LDV ---
@@ -240,15 +240,16 @@ def calculaCholesky(A, atol=1e-10):
 
     # Extraer la diagonal de D como un vector
     diag_D_vector = np.diag(D)
-
+    DiagDRaiz= np.zeros(len(diag_D_vector))
     # Aplicar la raíz cuadrada a cada elemento (son garantizados positivos por esSDP)
-    diag_D_sqrt = np.sqrt(diag_D_vector)
-
+    for i in range(0,diag_D_vector):
+        DiagDRaiz[i] = diag_D_vector[i]**(1/2)
+        
     # Convertir el vector de raíces cuadradas de nuevo en una matriz diagonal
-    D_sqrt = np.diag(diag_D_sqrt)
+    MatrizDRaiz = np.diag(DiagDRaiz)
 
     # 4. Calcular R = L * D^(1/2)
 
-    R = multiplicacionMatricialConNumpy(L, D_sqrt)
+    R = multiplicacionMatricialConNumpy(L, MatrizDRaiz)
 
     return R

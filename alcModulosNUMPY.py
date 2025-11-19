@@ -724,7 +724,7 @@ def QR_con_GS (A,tol=1e-12, retornanops=False):
     else:
         return Q,R
     
-def QR_con_GS_para_TP (A,tol=1e-12, retornanops=False): #(admite matrices rectangulares)
+def QR_con_GS_Para_TP (A,tol=1e-12, retornanops=False): #(admite matrices rectangulares)
     N_ops = 0
     filasA,columnasA = A.shape
     Q=np.zeros(A.shape)
