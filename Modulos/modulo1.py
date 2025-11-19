@@ -8,7 +8,7 @@ import numpy as np
 from AUXILIARES import absoluto
 #funcion que devuelve el error absoluto de un numero y su version en numero de maquina
 def error(x,y):
-    y= np.float64(y) #me aseguro de que y sea de tipo float64 (numero de maquina)
+    y= np.float64(y) #me aseguro de que esté representado como número de máquina (float64)
     return absoluto(x-y)
 
 #funcion que devuelve el error relativo de un numero y su version en numero de maquina

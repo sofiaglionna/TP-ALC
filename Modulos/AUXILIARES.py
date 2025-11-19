@@ -16,7 +16,7 @@ import numpy as np
 
 #) traspuesta(A)
 
-#) abs(x)
+#) absoluto(x)
 
 #) transformar(A,x)
 
