@@ -826,60 +826,31 @@ def productoExterior (A,B):
             res[i][j] = A[i]*B[j]
     return res
     
-#No usamos el algoritmo de la guia, usamos uno mejor optimizado (no construye H moño, muy costoso en matrices A grandes)
 def QR_con_HH (A,tol=1e-12):
     m, n = A.shape
     if m < n:
         return None
     
-    R = A.copy().astype(float)
-    Q_full = np.identity(m).astype(float) # Inicializar Q como I_m (m x m)
-
-    for k in range(n):
-        # 1. Construcción del vector de Householder u (misma lógica que antes)
-        X = R[k:m, k].copy()
-        alpha = -signo(X[0]) * norma2(X)
+    R = A.copy()
+    Q = np.identity(m)
+    for k in range(0,n):
+        X= R[k:m,k]
+        #traspongo para usar la norma
+        Xtraspuesta = traspuestaConNumpy(X)
+        a = -signo(Xtraspuesta[0])*norma(Xtraspuesta,2)
+        u = X-a*canonico(0, m-k)
+        if norma (u,2) > tol:
+            u = u/norma(u,2)
+            Hk = np.identity(m-k) - 2*productoExterior(u, u)
+            H_moño = np.identity(m)
+            H_moño[k:,k:] = Hk
+            R = (multiplicacionMatricialConNumpy(H_moño, R))
+            Q = (multiplicacionMatricialConNumpy(Q,traspuestaConNumpy(H_moño)))
         
-        e1 = np.zeros(m - k)
-        e1[0] = 1 # e1 vector canónico de R^(m-k)
-        u = X - (alpha * e1)
-        
-        if norma2(u) > tol:
-            u = u/norma2(u)
-            
-            # --- APLICACIÓN A R (R <- H_k R) ---
-            # Bloque R[k:m, k:n]
-            R_sub = R[k:m, k:n]
-            
-            # Calculamos la proyección: u^T * R_sub
-            UporR = multiplicacionMatricialConNumpy(u, R_sub) # Resultado es 1 x (n-k)
-            UporR_vector = UporR[0] # Extraemos el vector 1D
-            
-            # R_sub = R_sub - 2 * u @ (u^T @ R_sub)
-            R[k:m, k:n] = R_sub - 2 * productoExterior(u, UporR_vector)
-            
-            # Fijamos los ceros y alpha en la columna k
-            R[k, k] = alpha 
-            R[k+1:m, k] = 0.0
-            
-            #(Q <- Q H_k^T)
-            
-            Q_sub = Q_full[:, k:m] #
-            
-            # Calculamos la proyección: Q_sub @ u
-            Q_u = multiplicacionMatricialConNumpy(Q_sub, u) # Resultado es m x 1
-            Q_u_vector = Q_u.flatten() # Extraemos el vector 1D
-            
-            # Q_sub = Q_sub - 2 * (Q_sub @ u) @ u^T
-            # Usamos Q_u_vector (m) y u (m-k)
-            # Reajustamos Q_full[0:m, k:m]
-            Q_full[:, k:m] = Q_sub - 2 * productoExterior(Q_u_vector, u)
-
-    # 2. Devolver la QR Reducida para el TP (Q m x n, R n x n)
-    Q_reducida = Q_full[:, :n] 
-    R_reducida = R[:n, :n]     
-    
+    Q_reducida = Q[:m,:n]
+    R_reducida = R[:n,:n]
     return Q_reducida, R_reducida
+
 #print(QR_con_HH(A))
 metodos = ["RH","GS"]
 def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):
@@ -914,7 +885,7 @@ def metpot2k(A, tol=1e-15, K=1000):
         k += 1
 
     Av = multiplicacionMatricialConNumpy(A, v_barra)
-    landa = producto_interno((v_barra), Av)#[0]#comentom  porque da error en el tp, testear  # El autovalor.
+    landa = producto_interno((v_barra), Av)
     epsilon = absoluto(e - 1)  # El error
 
     return v_barra, landa, k
@@ -952,7 +923,7 @@ def diagRH(A, tol=1e-15, K=1000):
 
         # ordenamos la diagonal
         Diagonal = list(np.diag(D))
-        #reordeno de mayor a menor, en la posicion i esta el indice que marca donde se encuentra el elemento numero i en orden
+        #reordeno de mayor a menor, el valor en la posición i es la nueva posición del elemento que estaba en i
         indices = []
         for i in range(0, len(Diagonal)):
             indice= 0
@@ -1001,7 +972,7 @@ def diagRH(A, tol=1e-15, K=1000):
 
     # ordenamos la diagonal
     diag_vals = list(np.diag(D))
-    #reordeno de mayor a menor, en la posicion i esta el indice que marca donde se encuentra el elemento numero i en orden
+    #reordeno de mayor a menor, el valor en la posición i es la nueva posición del elemento que estaba en i
     indices = []
     for i in range(0, len(diag_vals)):
         indice= 0
@@ -1052,7 +1023,6 @@ def transiciones_al_azar_uniformes(n,thres):
         suma_columnas = 0
         for j in range(0,n,1):  # suma los elementos de la columna i, con j cambiando las filas
             suma_columnas += A[j][i]
-        #para tests: si no hay unos devuelvo 1 dividido la cantidad de elementos de la columna (parece ser lo que se espera en los test). Preguntar
         if suma_columnas == 0:
             A[:,i] = 1/n
         else:
@@ -1106,15 +1076,15 @@ def crea_rala(listado, m_filas, n_columnas, tol = 1e-15):
 
 
 def multiplica_rala_vector(A, v):
-    # A es una matriz rala representada como [diccionario, (m, n)].
+    # A es una matriz rala representada como [diccionario, (m, n)]
     A_dict_res, (m, n) = A
     
     w = np.zeros(m)  # w = [0, 0,...,0] m (cantidad de filas de A) veces 
 
-    for clave in A_dict_res:# "clave" es la tupla de las claves (fila, columna).
-        fila = clave[0]# primer elemento de la tupla en las claves del diccionario.
-        columna = clave[1]  # segundo elemento de la tupla en las claves del diccionario.
-        valor = A_dict_res[clave]  # valor en esa posición.
+    for clave in A_dict_res:# "clave" es la tupla de las claves (fila, columna)
+        fila = clave[0]# primer elemento de la tupla en las claves del diccionario
+        columna = clave[1]  # segundo elemento de la tupla en las claves del diccionario
+        valor = A_dict_res[clave]  # valor en esa posición
 
         w[fila] += valor * v[columna]# la fila de w es igual al valor de la clave por la columna del vector v
 
@@ -1131,15 +1101,15 @@ def svd_reducida(A, k="max", tol=1e-15):
     if n >= m: # Filas >= Columnas
         B = multiplicacionMatricialConNumpy(traspuestaConNumpy(A),A)  # Llamo la matriz B, la multiplicación de A y A traspuesta. (B es simetrica)
 
-        hatV_aux, D_aux = diagRH(B)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal.
+        hatV_aux, D_aux = diagRH(B)  # en hatV se guardan los autovectores en las columnas  ;  D se guardan los autovalores en su diagonal
 
         autovalores_aux = []  # son los autovalores de B sin verificar si es mayor o menos que la tol.
-        hatV = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol.
+        hatV = []  # son los autovectores de los autovalores de B sin verificar si los autoval cumplen con la tol
         
         for i in range(0, D_aux.shape[0], 1):
             if abs(D_aux[i,i]) > tol:  # si el autovalor es mayor a tol (que la cumple)...
-                autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux.
-                hatV.append(hatV_aux[:, i].tolist())  # guardo la columna válida.
+                autovalores_aux.append(D_aux[i,i])  # la guardo en la lista autovalores_aux
+                hatV.append(hatV_aux[:, i].tolist())  # guardo la columna válida
                 
         hatV = traspuestaConNumpy(np.array(hatV))  # le aplico traspuesta porque antes me quedaron los autovectores como filas. Este hatV ya viene con los autovectores de los autovalores que sobrevivieron.
 
