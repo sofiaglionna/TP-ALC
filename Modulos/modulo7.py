@@ -51,7 +51,7 @@ def nucleo(A, tol=1e-15):
 
     vectores = []
     for i in range(len(autovalores)):
-        if absoluto(autovalores[i]) < 1e-12:
+        if absoluto(autovalores[i]) < 1e-12: #tolerancia con la que se trabaja en House Holder
             v = S[:, i]
             norma2 = norma(v,2)
             if norma2 > 0:

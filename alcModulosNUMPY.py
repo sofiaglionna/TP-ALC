@@ -792,37 +792,29 @@ def productoExterior (A,B):
     
 #No usamos el algoritmo de la guia, usamos uno mejor optimizado (no construye H moño, muy costoso en matrices A grandes)
 def QR_con_HH (A,tol=1e-12):
-    if len(A.shape) == 1:
-        if A.shape[0] != 1:
-            return None 
-    if A.shape[0] < A.shape[1]:
+    m, n = A.shape
+    if m < n:
         return None
-    filas, columnas = A.shape
     
     R = A.copy()
-    #paso a float para evitar errores
-    R= R.astype(float)
-    Q = np.identity(filas)
-    #No calculo todo Q y R sino sus versiones reducidas para optimizar
-    for k in range(0, min(filas, columnas)):
-        X = R[k:filas,k].copy()
-        a= (signo(X[0]))*(norma2(X))
-        u = X - (a*canonico(0,filas-k))
-        if norma2(u) > tol:
-            u = u/norma2(u)
-            R_sub = R[k:filas, 0:columnas]
-            UporR = (u@ R_sub)
-            if UporR.shape[0] == 1:
-                UporR = UporR[0]
-            #UporR siempre es un vector ya que u lo es y es un producto matricial
-            R[k:filas, 0:columnas] = R_sub - 2*productoExterior(u,UporR)
-            Q_sub = Q[0:filas, k:filas]
-            Qu = (Q_sub@ u)
-            if Qu.shape[0] == 1:
-                Qu = Qu[0]
-            #Qu siempre es un vector columna, lo paso a vector fila para producto exterior. (tomo la posicion 0 ya que traspuesta devuelve una matriz (1xlen(Qu))y yo quiero un vector)
-            Q[0:filas, k:filas] = Q_sub - 2*productoExterior(traspuestaConNumpy(Qu)[0], u)
-    return Q,R
+    Q = np.identity(m)
+    for k in range(0,n):
+        X= R[k:m,k]
+        #traspongo para usar la norma
+        Xtraspuesta = traspuestaConNumpy(X)
+        a = -signo(Xtraspuesta[0])*norma(Xtraspuesta,2)
+        u = X-a*canonico(0, m-k)
+        if norma (u,2) > tol:
+            u = u/norma(u,2)
+            Hk = np.identity(m-k) - 2*productoExterior(u, u)
+            H_moño = np.identity(m)
+            H_moño[k:,k:] = Hk
+            R = (H_moño@ R)
+            Q = (Q@ traspuestaConNumpy(H_moño))
+        
+    Q_reducida = Q[:m,:n]
+    R_reducida = R[:n,:n]
+    return Q_reducida, R_reducida
 
 metodos = ["RH","GS"]
 def calculaQR (A, metodo="RH", tol=1e-12,retornanops = False):

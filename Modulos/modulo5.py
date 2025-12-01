@@ -125,54 +125,24 @@ def QR_con_HH (A,tol=1e-12):
     if m < n:
         return None
     
-    R = A.copy().astype(float)
-    Q_full = np.identity(m).astype(float) # Inicializar Q como I_m (m x m)
-
-    for k in range(n):
-        # 1. Construcción del vector de Householder u (misma lógica que antes)
-        X = R[k:m, k].copy()
-        alpha = -signo(X[0]) * norma2(X)
+    R = A.copy()
+    Q = np.identity(m)
+    for k in range(0,n):
+        X= R[k:m,k]
+        #traspongo para usar la norma
+        Xtraspuesta = traspuestaConNumpy(X)
+        a = -signo(Xtraspuesta[0])*norma(Xtraspuesta,2)
+        u = X-a*canonico(0, m-k)
+        if norma (u,2) > tol:
+            u = u/norma(u,2)
+            Hk = np.identity(m-k) - 2*productoExterior(u, u)
+            H_moño = np.identity(m)
+            H_moño[k:,k:] = Hk
+            R = multiplicacionMatricialConNumpy(H_moño, R)
+            Q = multiplicacionMatricialConNumpy(Q, traspuestaConNumpy(H_moño))
         
-        e1 = np.zeros(m - k)
-        e1[0] = 1 # e1 vector canónico de R^(m-k)
-        u = X - (alpha * e1)
-        
-        if norma2(u) > tol:
-            u = u/norma2(u)
-            
-            # --- APLICACIÓN A R (R <- H_k R) ---
-            # Bloque R[k:m, k:n]
-            R_sub = R[k:m, k:n]
-            
-            # Calculamos la proyección: u^T * R_sub
-            UporR = multiplicacionMatricialConNumpy(u, R_sub) # Resultado es 1 x (n-k)
-            UporR_vector = UporR[0] # Extraemos el vector 1D
-            
-            # R_sub = R_sub - 2 * u @ (u^T @ R_sub)
-            R[k:m, k:n] = R_sub - 2 * productoExterior(u, UporR_vector)
-            
-            # Fijamos los ceros y alpha en la columna k
-            R[k, k] = alpha 
-            R[k+1:m, k] = 0.0
-            
-            # --- APLICACIÓN A Q (Q <- Q H_k^T) ---
-            # Aplicamos la misma reflexión H_k (simétrica) a la matriz Q_full
-            
-            Q_sub = Q_full[:, k:m] # Bloque Q[0:m, k:m]
-            
-            # Calculamos la proyección: Q_sub @ u
-            Q_u = multiplicacionMatricialConNumpy(Q_sub, u) # Resultado es m x 1
-            Q_u_vector = Q_u.flatten() # Extraemos el vector 1D
-            
-            # Q_sub = Q_sub - 2 * (Q_sub @ u) @ u^T
-            # Usamos Q_u_vector (m) y u (m-k)
-            # Reajustamos Q_full[0:m, k:m]
-            Q_full[:, k:m] = Q_sub - 2 * productoExterior(Q_u_vector, u)
-
-    # 2. Devolver la QR Reducida para el TP (Q m x n, R n x n)
-    Q_reducida = Q_full[:, :n] # Las primeras n columnas de Q_full
-    R_reducida = R[:n, :n]     # El bloque superior n x n de R
-    
+    Q_reducida = Q[:m,:n]
+    R_reducida = R[:n,:n]
     return Q_reducida, R_reducida
 #print(QR_con_HH(A))
 metodos = ["RH","GS"]
