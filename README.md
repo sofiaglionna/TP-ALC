@@ -38,6 +38,6 @@ Python, NumPy (solo para tipos de arreglo), Jupyter, EfficientNet-b3 (pre-entren
 
 ### Equipo
 - Sofía Glionna
-- Gerónimo Pacheco Parrondo
-- Felix 
--
+- Felix Soriano
+- Pedro Soldatich
+- Geronimo Gabriel Pacheco Parrondo
